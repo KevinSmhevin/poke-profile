@@ -1,4 +1,4 @@
-export type SurveyAnswers = Record<string, string>
+import type { SurveyAnswers } from '../../survey/types'
 
 const pokemonByBucket = ['pikachu', 'bulbasaur', 'charmander', 'squirtle'] as const
 

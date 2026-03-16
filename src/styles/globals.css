@@ -105,6 +105,38 @@ body::before {
   min-height: 1.5rem;
 }
 
+.pixel-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.pixel-input {
+  width: 100%;
+  border: 2px solid var(--border);
+  border-radius: 0.4rem;
+  background: #11161c;
+  color: var(--text);
+  font-size: 1rem;
+  padding: 0.65rem 0.7rem;
+}
+
+.pixel-input:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.input-error {
+  margin: 0;
+  color: var(--yellow);
+  font-size: 0.85rem;
+}
+
+.saved-note {
+  margin: 0;
+  color: var(--blue);
+}
+
 .cursor {
   display: inline-block;
   color: var(--yellow);
