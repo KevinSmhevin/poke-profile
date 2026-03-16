@@ -241,6 +241,48 @@ body::before {
   outline-offset: 2px;
 }
 
+.starter-option-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.starter-option-button {
+  border: 2px solid var(--border);
+  border-radius: 0.7rem;
+  background: #11161c;
+  color: var(--text);
+  min-height: 72px;
+  padding: 0.5rem 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-align: left;
+}
+
+.starter-option-button.is-selected {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 1px rgb(77 163 255 / 0.4);
+}
+
+.starter-option-button:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.starter-option-gif {
+  width: 54px;
+  height: 54px;
+  border-radius: 0.5rem;
+  object-fit: contain;
+  background: rgb(255 255 255 / 0.04);
+}
+
+.starter-option-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
 .cursor {
   display: inline-block;
   color: var(--yellow);
@@ -297,5 +339,17 @@ body::before {
 
   .region-option-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .starter-option-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .starter-option-button {
+    flex-direction: column;
+    justify-content: center;
+    min-height: 116px;
+    text-align: center;
+    gap: 0.45rem;
   }
 }

@@ -1,4 +1,5 @@
 import type { SurveyQuestion } from '../types'
+import { starterOptionsByRegionId } from './starterOptionsByRegion'
 
 export const NAME_MAX_LENGTH = 20
 const CURRENT_YEAR = new Date().getFullYear()
@@ -87,5 +88,12 @@ export const surveyQuestions: SurveyQuestion[] = [
     prompt: 'Which region do you hail from?',
     label: 'Trainer region',
     options: regionOptions,
+  },
+  {
+    type: 'starter',
+    id: 'starterPokemon',
+    prompt: 'Choose your starter Pokemon.',
+    label: 'Starter Pokemon',
+    optionsByRegionId: starterOptionsByRegionId,
   },
 ]

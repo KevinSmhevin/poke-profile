@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { useDeterministicPokemonResult } from '../../../result/hooks/useDeterministicPokemonResult'
 import { surveyQuestions } from '../../data/questions'
 import { useSurveyAnswers } from '../../hooks/useSurveyAnswers'
-import type { RegionSurveyQuestion } from '../../types'
+import type { RegionSurveyQuestion, StarterSurveyQuestion } from '../../types'
 import { DateQuestionStep } from '../DateQuestionStep/DateQuestionStep'
 import { PokemonTypeQuestionStep } from '../PokemonTypeQuestionStep/PokemonTypeQuestionStep'
 import { RegionQuestionStep } from '../RegionQuestionStep/RegionQuestionStep'
+import { StarterQuestionStep } from '../StarterQuestionStep/StarterQuestionStep'
 import { TextQuestionStep } from '../TextQuestionStep/TextQuestionStep'
 import { TypewriterPrompt } from '../TypewriterPrompt/TypewriterPrompt'
 
@@ -35,6 +36,15 @@ export function SurveyFlow() {
     (option) => option.id === answers.trainerRegion,
   )
   const trainerRegionAnswer = selectedRegion?.label ?? 'Not set yet'
+  const starterQuestion = surveyQuestions.find(
+    (question): question is StarterSurveyQuestion =>
+      question.type === 'starter' && question.id === 'starterPokemon',
+  )
+  const starterOptionsForRegion = starterQuestion?.optionsByRegionId[answers.trainerRegion ?? '']
+  const selectedStarter = starterOptionsForRegion?.find(
+    (option) => option.id === answers.starterPokemon,
+  )
+  const starterAnswer = selectedStarter?.name ?? 'Not set yet'
   const deterministicPokemonResult = useDeterministicPokemonResult(answers)
 
   const handleCurrentQuestionValueChange = (value: string) => {
@@ -93,6 +103,14 @@ export function SurveyFlow() {
             onValueChange={handleCurrentQuestionValueChange}
             onSubmit={handleCurrentQuestionSubmit}
           />
+        ) : activeQuestion.type === 'starter' ? (
+          <StarterQuestionStep
+            question={activeQuestion}
+            selectedRegionId={answers.trainerRegion ?? ''}
+            value={activeQuestionValue}
+            onValueChange={handleCurrentQuestionValueChange}
+            onSubmit={handleCurrentQuestionSubmit}
+          />
         ) : (
           <PokemonTypeQuestionStep
             question={activeQuestion}
@@ -116,6 +134,9 @@ export function SurveyFlow() {
           </p>
           <p>
             Region: <strong>{trainerRegionAnswer}</strong>
+          </p>
+          <p>
+            Starter: <strong>{starterAnswer}</strong>
           </p>
           {isSurveySubmitted ? (
             <p className="saved-note">Profile saved. Ready for personality questions.</p>
