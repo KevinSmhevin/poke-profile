@@ -1,35 +1,35 @@
 import { useState } from 'react'
-import { QuestionScreen } from '../QuestionScreen/QuestionScreen'
 import { TextAnswerField } from '../AnswerFields/TextAnswerField/TextAnswerField'
+import { QuestionScreen } from '../QuestionScreen/QuestionScreen'
+import { isValidName, sanitizeNameInput } from '../../lib/nameValidation'
 import type { TextSurveyQuestion } from '../../types'
-import { isValidFirstName, sanitizeFirstNameInput } from '../../lib/firstNameValidation'
 
-type FirstNameQuestionProps = {
+type TextQuestionStepProps = {
   question: TextSurveyQuestion
   value: string
   onValueChange: (value: string) => void
   onSubmit: () => void
 }
 
-export function FirstNameQuestion({
+export function TextQuestionStep({
   question,
   value,
   onValueChange,
   onSubmit,
-}: FirstNameQuestionProps) {
+}: TextQuestionStepProps) {
   const [showValidationError, setShowValidationError] = useState(false)
 
   const handleInputChange = (rawValue: string) => {
-    const sanitizedValue = sanitizeFirstNameInput(rawValue)
+    const sanitizedValue = sanitizeNameInput(rawValue, question.maxLength)
     onValueChange(sanitizedValue)
 
     if (showValidationError) {
-      setShowValidationError(!isValidFirstName(sanitizedValue))
+      setShowValidationError(!isValidName(sanitizedValue, question.maxLength))
     }
   }
 
   const handleSubmit = () => {
-    if (!isValidFirstName(value)) {
+    if (!isValidName(value, question.maxLength)) {
       setShowValidationError(true)
       return
     }
@@ -51,8 +51,8 @@ export function FirstNameQuestion({
     >
       <TextAnswerField
         id={question.id}
-        label="Trainer first name"
-        autoComplete="given-name"
+        label={question.label}
+        autoComplete={question.autoComplete}
         maxLength={question.maxLength}
         placeholder={question.placeholder}
         value={value}
