@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { getDeterministicPokemonResult } from '../../../result/lib/deterministicScoring'
-import { surveyTextQuestions } from '../../data/questions'
+import { surveyQuestions } from '../../data/questions'
 import { useSurveyAnswers } from '../../hooks/useSurveyAnswers'
+import { DateQuestionStep } from '../DateQuestionStep/DateQuestionStep'
 import { TextQuestionStep } from '../TextQuestionStep/TextQuestionStep'
 import { TypewriterPrompt } from '../TypewriterPrompt/TypewriterPrompt'
 
@@ -11,16 +12,17 @@ export function SurveyFlow() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [isSurveySubmitted, setIsSurveySubmitted] = useState(false)
 
-  const hasActiveQuestion =
-    hasStartedJourney && currentQuestionIndex < surveyTextQuestions.length
-  const activeQuestion = hasActiveQuestion ? surveyTextQuestions[currentQuestionIndex] : null
+  const hasActiveQuestion = hasStartedJourney && currentQuestionIndex < surveyQuestions.length
+  const activeQuestion = hasActiveQuestion ? surveyQuestions[currentQuestionIndex] : null
   const activeQuestionValue = activeQuestion ? (answers[activeQuestion.id] ?? '') : ''
 
   const trainerFullName =
-    surveyTextQuestions
+    surveyQuestions
+      .filter((question) => question.id === 'firstName' || question.id === 'lastName')
       .map((question) => answers[question.id])
       .filter(Boolean)
       .join(' ') || 'Not set yet'
+  const dobAnswer = answers.dateOfBirth ?? 'Not set yet'
   const previewResult = getDeterministicPokemonResult(answers)
 
   const handleCurrentQuestionValueChange = (value: string) => {
@@ -32,7 +34,7 @@ export function SurveyFlow() {
   }
 
   const handleCurrentQuestionSubmit = () => {
-    const isLastQuestion = currentQuestionIndex >= surveyTextQuestions.length - 1
+    const isLastQuestion = currentQuestionIndex >= surveyQuestions.length - 1
 
     if (isLastQuestion) {
       setIsSurveySubmitted(true)
@@ -58,12 +60,21 @@ export function SurveyFlow() {
       ) : null}
 
       {activeQuestion ? (
-        <TextQuestionStep
-          question={activeQuestion}
-          value={activeQuestionValue}
-          onValueChange={handleCurrentQuestionValueChange}
-          onSubmit={handleCurrentQuestionSubmit}
-        />
+        activeQuestion.type === 'text' ? (
+          <TextQuestionStep
+            question={activeQuestion}
+            value={activeQuestionValue}
+            onValueChange={handleCurrentQuestionValueChange}
+            onSubmit={handleCurrentQuestionSubmit}
+          />
+        ) : (
+          <DateQuestionStep
+            question={activeQuestion}
+            value={activeQuestionValue}
+            onValueChange={handleCurrentQuestionValueChange}
+            onSubmit={handleCurrentQuestionSubmit}
+          />
+        )
       ) : null}
 
       {hasStartedJourney ? (
@@ -71,8 +82,11 @@ export function SurveyFlow() {
           <p>
             Current trainer name: <strong>{trainerFullName}</strong>
           </p>
+          <p>
+            Date of birth: <strong>{dobAnswer}</strong>
+          </p>
           {isSurveySubmitted ? (
-            <p className="saved-note">Name saved. Ready for question three.</p>
+            <p className="saved-note">Profile saved. Ready for personality questions.</p>
           ) : null}
           <p>
             Deterministic preview result: <strong>{previewResult}</strong>

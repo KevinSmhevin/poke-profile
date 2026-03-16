@@ -137,6 +137,33 @@ body::before {
   color: var(--blue);
 }
 
+.dob-calendar-wrapper {
+  border: 2px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  background: #11161c;
+}
+
+.dob-calendar-wrapper .rdp-root {
+  --rdp-accent-color: var(--blue);
+  --rdp-accent-background-color: rgb(77 163 255 / 0.25);
+  --rdp-day_button-border-radius: 0.3rem;
+  --rdp-selected-border: 1px solid var(--blue);
+  margin: 0;
+}
+
+.dob-calendar-wrapper .rdp-dropdown {
+  background: #0d1115;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  padding: 0.2rem 0.3rem;
+}
+
+.dob-calendar-wrapper .rdp-chevron {
+  fill: var(--text);
+}
+
 .cursor {
   display: inline-block;
   color: var(--yellow);
