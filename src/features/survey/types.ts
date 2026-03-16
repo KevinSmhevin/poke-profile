@@ -2,7 +2,7 @@ export type SurveyAnswers = Record<string, string>
 
 type BaseSurveyQuestion = {
   id: string
-  type: 'text' | 'date'
+  type: 'text' | 'date' | 'pokemonType'
   prompt: string
 }
 
@@ -21,4 +21,19 @@ export type DateSurveyQuestion = BaseSurveyQuestion & {
   toYear: number
 }
 
-export type SurveyQuestion = TextSurveyQuestion | DateSurveyQuestion
+export type PokemonTypeOption = {
+  id: string
+  label: string
+  imageSrc: string
+}
+
+export type PokemonTypeSurveyQuestion = BaseSurveyQuestion & {
+  type: 'pokemonType'
+  label: string
+  options: PokemonTypeOption[]
+}
+
+export type SurveyQuestion =
+  | TextSurveyQuestion
+  | DateSurveyQuestion
+  | PokemonTypeSurveyQuestion

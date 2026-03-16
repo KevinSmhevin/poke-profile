@@ -3,6 +3,7 @@ import { getDeterministicPokemonResult } from '../../../result/lib/deterministic
 import { surveyQuestions } from '../../data/questions'
 import { useSurveyAnswers } from '../../hooks/useSurveyAnswers'
 import { DateQuestionStep } from '../DateQuestionStep/DateQuestionStep'
+import { PokemonTypeQuestionStep } from '../PokemonTypeQuestionStep/PokemonTypeQuestionStep'
 import { TextQuestionStep } from '../TextQuestionStep/TextQuestionStep'
 import { TypewriterPrompt } from '../TypewriterPrompt/TypewriterPrompt'
 
@@ -23,6 +24,7 @@ export function SurveyFlow() {
       .filter(Boolean)
       .join(' ') || 'Not set yet'
   const dobAnswer = answers.dateOfBirth ?? 'Not set yet'
+  const favoriteTypeAnswer = answers.favoritePokemonType ?? 'Not set yet'
   const previewResult = getDeterministicPokemonResult(answers)
 
   const handleCurrentQuestionValueChange = (value: string) => {
@@ -67,8 +69,15 @@ export function SurveyFlow() {
             onValueChange={handleCurrentQuestionValueChange}
             onSubmit={handleCurrentQuestionSubmit}
           />
-        ) : (
+        ) : activeQuestion.type === 'date' ? (
           <DateQuestionStep
+            question={activeQuestion}
+            value={activeQuestionValue}
+            onValueChange={handleCurrentQuestionValueChange}
+            onSubmit={handleCurrentQuestionSubmit}
+          />
+        ) : (
+          <PokemonTypeQuestionStep
             question={activeQuestion}
             value={activeQuestionValue}
             onValueChange={handleCurrentQuestionValueChange}
@@ -84,6 +93,9 @@ export function SurveyFlow() {
           </p>
           <p>
             Date of birth: <strong>{dobAnswer}</strong>
+          </p>
+          <p>
+            Favorite type: <strong>{favoriteTypeAnswer}</strong>
           </p>
           {isSurveySubmitted ? (
             <p className="saved-note">Profile saved. Ready for personality questions.</p>

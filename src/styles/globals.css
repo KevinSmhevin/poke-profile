@@ -137,6 +137,18 @@ body::before {
   color: var(--blue);
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .dob-calendar-wrapper {
   border: 2px solid var(--border);
   border-radius: 0.5rem;
@@ -162,6 +174,42 @@ body::before {
 
 .dob-calendar-wrapper .rdp-chevron {
   fill: var(--text);
+}
+
+.type-option-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 0.5rem;
+}
+
+.type-option-button {
+  border: 2px solid var(--border);
+  border-radius: 0.6rem;
+  background: #11161c;
+  padding: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  position: relative;
+}
+
+.type-option-button.is-selected {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 1px rgb(77 163 255 / 0.4);
+}
+
+.type-option-button:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.type-option-image {
+  width: 54px;
+  height: auto;
+  max-height: 26px;
+  object-fit: contain;
+  border-radius: 0.4rem;
 }
 
 .cursor {
