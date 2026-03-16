@@ -212,6 +212,35 @@ body::before {
   border-radius: 0.4rem;
 }
 
+.region-option-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.region-option-button {
+  border: 2px solid var(--border);
+  border-radius: 0.6rem;
+  background: #11161c;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.92rem;
+  line-height: 1.2;
+  min-height: 44px;
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+}
+
+.region-option-button.is-selected {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 1px rgb(77 163 255 / 0.4);
+}
+
+.region-option-button:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
+}
+
 .cursor {
   display: inline-block;
   color: var(--yellow);
@@ -264,5 +293,9 @@ body::before {
   .type-option-image {
     width: 66px;
     max-height: 32px;
+  }
+
+  .region-option-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

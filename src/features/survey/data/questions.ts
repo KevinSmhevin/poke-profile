@@ -22,11 +22,29 @@ const POKEMON_TYPES = [
   'steel',
   'fairy',
 ] as const
+const REGION_NAMES = [
+  'kanto',
+  'johto',
+  'hoenn',
+  'sinnoh',
+  'unova',
+  'kalos',
+  'alola',
+  'galar',
+  'hisui',
+  'paldea',
+] as const
 
 const pokemonTypeOptions = POKEMON_TYPES.map((type) => ({
   id: type,
   label: `${type.charAt(0).toUpperCase()}${type.slice(1)}`,
   imageSrc: `/images/pokemon-types/name-icons/${type}.png`,
+}))
+
+const regionOptions = REGION_NAMES.map((name, index) => ({
+  id: String(index + 1),
+  name,
+  label: `${index + 1}. ${name.charAt(0).toUpperCase()}${name.slice(1)}`,
 }))
 
 export const surveyQuestions: SurveyQuestion[] = [
@@ -62,5 +80,12 @@ export const surveyQuestions: SurveyQuestion[] = [
     prompt: 'What is your favorite Pokemon type?',
     label: 'Favorite Pokemon type',
     options: pokemonTypeOptions,
+  },
+  {
+    type: 'region',
+    id: 'trainerRegion',
+    prompt: 'Which region do you hail from?',
+    label: 'Trainer region',
+    options: regionOptions,
   },
 ]

@@ -2,7 +2,7 @@ export type SurveyAnswers = Record<string, string>
 
 type BaseSurveyQuestion = {
   id: string
-  type: 'text' | 'date' | 'pokemonType'
+  type: 'text' | 'date' | 'pokemonType' | 'region'
   prompt: string
 }
 
@@ -33,7 +33,20 @@ export type PokemonTypeSurveyQuestion = BaseSurveyQuestion & {
   options: PokemonTypeOption[]
 }
 
+export type RegionOption = {
+  id: string
+  name: string
+  label: string
+}
+
+export type RegionSurveyQuestion = BaseSurveyQuestion & {
+  type: 'region'
+  label: string
+  options: RegionOption[]
+}
+
 export type SurveyQuestion =
   | TextSurveyQuestion
   | DateSurveyQuestion
   | PokemonTypeSurveyQuestion
+  | RegionSurveyQuestion

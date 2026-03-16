@@ -6,18 +6,37 @@ export type PokemonSummary = {
   imageUrl: string
 }
 
-export async function fetchPokemonByName(name: string): Promise<PokemonSummary> {
-  const response = await fetch(`${POKE_API_BASE_URL}/pokemon/${name}`)
-
-  if (!response.ok) {
-    throw new Error(`Unable to load Pokemon data for "${name}".`)
+type PokemonApiResponse = {
+  id: number
+  name: string
+  sprites: {
+    front_default: string | null
   }
+}
 
-  const payload = await response.json()
-
+function mapPokemonPayload(payload: PokemonApiResponse): PokemonSummary {
   return {
     id: payload.id,
     name: payload.name,
-    imageUrl: payload.sprites.front_default,
+    imageUrl: payload.sprites.front_default ?? '',
   }
+}
+
+async function fetchPokemonResource(resource: string): Promise<PokemonSummary> {
+  const response = await fetch(`${POKE_API_BASE_URL}/pokemon/${resource}`)
+
+  if (!response.ok) {
+    throw new Error(`Unable to load Pokemon data for "${resource}".`)
+  }
+
+  const payload = (await response.json()) as PokemonApiResponse
+  return mapPokemonPayload(payload)
+}
+
+export async function fetchPokemonByName(name: string): Promise<PokemonSummary> {
+  return fetchPokemonResource(name)
+}
+
+export async function fetchPokemonById(id: number): Promise<PokemonSummary> {
+  return fetchPokemonResource(String(id))
 }

@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { getDeterministicPokemonResult } from '../../../result/lib/deterministicScoring'
+import { useDeterministicPokemonResult } from '../../../result/hooks/useDeterministicPokemonResult'
 import { surveyQuestions } from '../../data/questions'
 import { useSurveyAnswers } from '../../hooks/useSurveyAnswers'
+import type { RegionSurveyQuestion } from '../../types'
 import { DateQuestionStep } from '../DateQuestionStep/DateQuestionStep'
 import { PokemonTypeQuestionStep } from '../PokemonTypeQuestionStep/PokemonTypeQuestionStep'
+import { RegionQuestionStep } from '../RegionQuestionStep/RegionQuestionStep'
 import { TextQuestionStep } from '../TextQuestionStep/TextQuestionStep'
 import { TypewriterPrompt } from '../TypewriterPrompt/TypewriterPrompt'
 
@@ -25,7 +27,15 @@ export function SurveyFlow() {
       .join(' ') || 'Not set yet'
   const dobAnswer = answers.dateOfBirth ?? 'Not set yet'
   const favoriteTypeAnswer = answers.favoritePokemonType ?? 'Not set yet'
-  const previewResult = getDeterministicPokemonResult(answers)
+  const regionQuestion = surveyQuestions.find(
+    (question): question is RegionSurveyQuestion =>
+      question.type === 'region' && question.id === 'trainerRegion',
+  )
+  const selectedRegion = regionQuestion?.options.find(
+    (option) => option.id === answers.trainerRegion,
+  )
+  const trainerRegionAnswer = selectedRegion?.label ?? 'Not set yet'
+  const deterministicPokemonResult = useDeterministicPokemonResult(answers)
 
   const handleCurrentQuestionValueChange = (value: string) => {
     if (!activeQuestion) {
@@ -76,6 +86,13 @@ export function SurveyFlow() {
             onValueChange={handleCurrentQuestionValueChange}
             onSubmit={handleCurrentQuestionSubmit}
           />
+        ) : activeQuestion.type === 'region' ? (
+          <RegionQuestionStep
+            question={activeQuestion}
+            value={activeQuestionValue}
+            onValueChange={handleCurrentQuestionValueChange}
+            onSubmit={handleCurrentQuestionSubmit}
+          />
         ) : (
           <PokemonTypeQuestionStep
             question={activeQuestion}
@@ -97,11 +114,24 @@ export function SurveyFlow() {
           <p>
             Favorite type: <strong>{favoriteTypeAnswer}</strong>
           </p>
+          <p>
+            Region: <strong>{trainerRegionAnswer}</strong>
+          </p>
           {isSurveySubmitted ? (
             <p className="saved-note">Profile saved. Ready for personality questions.</p>
           ) : null}
           <p>
-            Deterministic preview result: <strong>{previewResult}</strong>
+            Pokemon result:{' '}
+            <strong>
+              {deterministicPokemonResult.isLoading
+                ? 'Calculating...'
+                : deterministicPokemonResult.errorMessage
+                  ? deterministicPokemonResult.errorMessage
+                  : deterministicPokemonResult.pokemonNumber &&
+                      deterministicPokemonResult.pokemonName
+                    ? `#${deterministicPokemonResult.pokemonNumber} ${deterministicPokemonResult.pokemonName}`
+                    : 'Complete first name, last name, and DOB to reveal.'}
+            </strong>
           </p>
         </div>
       ) : null}
