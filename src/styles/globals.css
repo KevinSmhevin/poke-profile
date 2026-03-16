@@ -256,4 +256,13 @@ body::before {
   .pixel-button {
     width: fit-content;
   }
+
+  .type-option-grid {
+    grid-template-columns: repeat(6, minmax(84px, 1fr));
+  }
+
+  .type-option-image {
+    width: 66px;
+    max-height: 32px;
+  }
 }
