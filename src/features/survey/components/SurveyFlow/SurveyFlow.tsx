@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDeterministicLegendaryResult } from '../../../result/hooks/useDeterministicLegendaryResult'
 import { useDeterministicPokemonResult } from '../../../result/hooks/useDeterministicPokemonResult'
 import { useDeterministicRegionalTeammateResult } from '../../../result/hooks/useDeterministicRegionalTeammateResult'
@@ -7,6 +7,8 @@ import { useDeterministicTypeTeammateResult } from '../../../result/hooks/useDet
 import { usePokemonSummaryById } from '../../../result/hooks/usePokemonSummaryById'
 import { useStarterFinalEvolutionResult } from '../../../result/hooks/useStarterFinalEvolutionResult'
 import { getPreferredPokemonMediaUrl } from '../../../result/lib/pokemonMedia'
+import { buildResultsShareUrl, parseSharedResultsFromUrl } from '../../../result/services/resultsShare'
+import { saveElementScreenshot } from '../../../result/services/resultsScreenshot'
 import { surveyQuestions } from '../../data/questions'
 import { useSurveyAnswers } from '../../hooks/useSurveyAnswers'
 import type {
@@ -31,14 +33,24 @@ type SurveyFlowProps = {
 }
 
 export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
-  const { answers, setAnswer } = useSurveyAnswers()
-  const [hasStartedJourney, setHasStartedJourney] = useState(false)
+  const sharedResultsAnswers = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return null
+    }
+
+    return parseSharedResultsFromUrl(window.location.search)
+  }, [])
+  const { answers, setAnswer } = useSurveyAnswers(sharedResultsAnswers ?? {})
+  const [hasStartedJourney, setHasStartedJourney] = useState(Boolean(sharedResultsAnswers))
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [isSurveySubmitted, setIsSurveySubmitted] = useState(false)
+  const [isSurveySubmitted, setIsSurveySubmitted] = useState(Boolean(sharedResultsAnswers))
   const [resultsPresentationPhase, setResultsPresentationPhase] = useState<
     'hidden' | 'gathering' | 'revealing' | 'complete'
-  >('hidden')
+  >(sharedResultsAnswers ? 'complete' : 'hidden')
   const [currentRevealIndex, setCurrentRevealIndex] = useState(0)
+  const [isSavingResults, setIsSavingResults] = useState(false)
+  const [resultsActionMessage, setResultsActionMessage] = useState<string | null>(null)
+  const resultsContentRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     onHasStartedJourneyChange?.(hasStartedJourney)
@@ -417,6 +429,13 @@ export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
     },
   ]
   const activePresentationItem = presentationItems[currentRevealIndex] ?? null
+  const resultsShareUrl = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return '#'
+    }
+
+    return buildResultsShareUrl(answers, window.location.href)
+  }, [answers])
 
   useEffect(() => {
     if (resultsPresentationPhase !== 'gathering') {
@@ -461,6 +480,23 @@ export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
     }
 
     setCurrentRevealIndex((index) => index + 1)
+  }
+
+  const handleSaveResults = async () => {
+    const resultsContainerElement = resultsContentRef.current
+    if (!resultsContainerElement) {
+      return
+    }
+
+    try {
+      setIsSavingResults(true)
+      await saveElementScreenshot(resultsContainerElement)
+      setResultsActionMessage('Results screenshot saved.')
+    } catch {
+      setResultsActionMessage('Unable to save screenshot right now.')
+    } finally {
+      setIsSavingResults(false)
+    }
   }
 
   return (
@@ -618,41 +654,62 @@ export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
 
           {resultsPresentationPhase === 'complete' ? (
             <>
-              <h1>
-                Trainer <strong>{trainerFullName}</strong> Results
-              </h1>
-              <div className="result-info-grid">
-                {infoGridItems.map((resultItem) => (
-                  <div key={resultItem.id} className="result-info-card">
-                    <span className="result-info-label">{resultItem.title}</span>
-                    {resultItem.value ? (
-                      <strong className="result-info-value">{resultItem.value}</strong>
-                    ) : null}
-                    {resultItem.mediaSrc ? (
-                      <img
-                        src={resultItem.mediaSrc}
-                        alt={resultItem.mediaAlt}
-                        className="result-inline-media result-starter-media result-info-media"
-                      />
-                    ) : null}
-                  </div>
-                ))}
+              <div ref={resultsContentRef} className="results-content">
+                <h1>
+                  Trainer <strong>{trainerFullName}</strong> Results
+                </h1>
+                <div className="result-info-grid">
+                  {infoGridItems.map((resultItem) => (
+                    <div key={resultItem.id} className="result-info-card">
+                      <span className="result-info-label">{resultItem.title}</span>
+                      {resultItem.value ? (
+                        <strong className="result-info-value">{resultItem.value}</strong>
+                      ) : null}
+                      {resultItem.mediaSrc ? (
+                        <img
+                          src={resultItem.mediaSrc}
+                          alt={resultItem.mediaAlt}
+                          className="result-inline-media result-starter-media result-info-media"
+                        />
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+                <p className="team-grid-description">Your 6 man pokemon team is</p>
+                <div className="result-team-grid">
+                  {teamGridItems.map((teamGridItem) => (
+                    <div key={teamGridItem.id} className="result-team-card">
+                      {teamGridItem.mediaSrc ? (
+                        <img
+                          src={teamGridItem.mediaSrc}
+                          alt={teamGridItem.mediaAlt}
+                          className="result-inline-media result-starter-media result-team-card-media"
+                        />
+                      ) : null}
+                      <strong>{teamGridItem.label}</strong>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <p className="team-grid-description">Your 6 man pokemon team is</p>
-              <div className="result-team-grid">
-                {teamGridItems.map((teamGridItem) => (
-                  <div key={teamGridItem.id} className="result-team-card">
-                    {teamGridItem.mediaSrc ? (
-                      <img
-                        src={teamGridItem.mediaSrc}
-                        alt={teamGridItem.mediaAlt}
-                        className="result-inline-media result-starter-media result-team-card-media"
-                      />
-                    ) : null}
-                    <strong>{teamGridItem.label}</strong>
-                  </div>
-                ))}
+              <div className="results-actions">
+                <button
+                  type="button"
+                  className="pixel-button"
+                  disabled={isSavingResults}
+                  onClick={handleSaveResults}
+                >
+                  {isSavingResults ? 'Saving...' : 'Save Results'}
+                </button>
+                <a
+                  href={resultsShareUrl}
+                  className="pixel-button pixel-button-secondary"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Share Results Link
+                </a>
               </div>
+              {resultsActionMessage ? <p className="saved-note">{resultsActionMessage}</p> : null}
             </>
           ) : null}
         </div>
