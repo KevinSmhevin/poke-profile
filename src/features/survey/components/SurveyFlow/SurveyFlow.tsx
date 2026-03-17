@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDeterministicLegendaryResult } from '../../../result/hooks/useDeterministicLegendaryResult'
 import { useDeterministicPokemonResult } from '../../../result/hooks/useDeterministicPokemonResult'
 import { usePokemonSummaryById } from '../../../result/hooks/usePokemonSummaryById'
 import { surveyQuestions } from '../../data/questions'
@@ -93,6 +94,11 @@ export function SurveyFlow() {
   const deterministicPokemonMediaSrc =
     deterministicPokemonResult.pokemonGifUrl ||
     deterministicPokemonResult.pokemonImageUrl ||
+    ''
+  const deterministicLegendaryResult = useDeterministicLegendaryResult(answers)
+  const deterministicLegendaryMediaSrc =
+    deterministicLegendaryResult.pokemonGifUrl ||
+    deterministicLegendaryResult.pokemonImageUrl ||
     ''
 
   const handleCurrentQuestionValueChange = (value: string) => {
@@ -270,6 +276,38 @@ export function SurveyFlow() {
           ) : (
             <p>
               Team member 6 (Random): <strong>No selection yet.</strong>
+            </p>
+          )}
+          {deterministicLegendaryResult.isLoading ? (
+            <p>
+              Legendary result: <strong>Calculating...</strong>
+            </p>
+          ) : deterministicLegendaryResult.errorMessage ? (
+            <p>
+              Legendary result: <strong>{deterministicLegendaryResult.errorMessage}</strong>
+            </p>
+          ) : deterministicLegendaryResult.pokemonNumber &&
+            deterministicLegendaryResult.pokemonName ? (
+            <div className="result-media-row">
+              <span>Legendary result:</span>
+              <strong>
+                #{deterministicLegendaryResult.pokemonNumber}{' '}
+                {deterministicLegendaryResult.pokemonName}
+              </strong>
+              {deterministicLegendaryMediaSrc ? (
+                <img
+                  src={deterministicLegendaryMediaSrc}
+                  alt={deterministicLegendaryResult.pokemonName}
+                  className="result-inline-media result-starter-media"
+                />
+              ) : null}
+            </div>
+          ) : (
+            <p>
+              Legendary result:{' '}
+              <strong>
+                Complete first name, last name, DOB, and pseudo-legendary to reveal.
+              </strong>
             </p>
           )}
           {isSurveySubmitted ? (

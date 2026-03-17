@@ -1,4 +1,5 @@
 import type { SurveyAnswers } from '../../survey/types'
+import { LEGENDARY_POKEMON_NUMBERS } from '../data/legendaryPokemonNumbers'
 
 const POKEMON_RESULT_COUNT = 1025
 const HASH_ALGORITHM_VERSION = 'v1'
@@ -45,6 +46,11 @@ export function hasRequiredIdentityAnswers(answers: SurveyAnswers): boolean {
   return Boolean(firstName) && Boolean(lastName) && hasValidDateInput(dateOfBirth)
 }
 
+export function hasRequiredLegendaryAnswers(answers: SurveyAnswers): boolean {
+  const pseudoLegendaryPartner = normalizeInputValue(answers.pseudoLegendaryPartner)
+  return hasRequiredIdentityAnswers(answers) && Boolean(pseudoLegendaryPartner)
+}
+
 async function hashInputToUint32(input: string): Promise<number> {
   const encoder = new TextEncoder()
   const inputBytes = encoder.encode(input)
@@ -61,6 +67,32 @@ export async function getDeterministicPokemonNumber(
   const hashValue = await hashInputToUint32(deterministicInput)
 
   return (hashValue % POKEMON_RESULT_COUNT) + 1
+}
+
+export function getLegendaryInputSignature(answers: SurveyAnswers): string {
+  const firstName = normalizeInputValue(answers.firstName)
+  const lastName = normalizeInputValue(answers.lastName)
+  const dateOfBirth = normalizeInputValue(answers.dateOfBirth)
+  const pseudoLegendaryPartner = normalizeInputValue(answers.pseudoLegendaryPartner)
+
+  return [
+    `algorithm:${HASH_ALGORITHM_VERSION}`,
+    'resultPool:legendary',
+    `firstName:${firstName}`,
+    `lastName:${lastName}`,
+    `dateOfBirth:${dateOfBirth}`,
+    `pseudoLegendaryPartner:${pseudoLegendaryPartner}`,
+  ].join('|')
+}
+
+export async function getDeterministicLegendaryPokemonNumber(
+  answers: SurveyAnswers,
+): Promise<number> {
+  const legendaryInput = getLegendaryInputSignature(answers)
+  const hashValue = await hashInputToUint32(legendaryInput)
+  const index = hashValue % LEGENDARY_POKEMON_NUMBERS.length
+
+  return LEGENDARY_POKEMON_NUMBERS[index]
 }
 
 export function formatPokemonDisplayName(name: string): string {
