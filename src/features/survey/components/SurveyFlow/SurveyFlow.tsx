@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDeterministicLegendaryResult } from '../../../result/hooks/useDeterministicLegendaryResult'
 import { useDeterministicPokemonResult } from '../../../result/hooks/useDeterministicPokemonResult'
 import { useDeterministicRegionalTeammateResult } from '../../../result/hooks/useDeterministicRegionalTeammateResult'
@@ -26,11 +26,19 @@ import { TraitsQuestionStep } from '../TraitsQuestionStep/TraitsQuestionStep'
 import { TypewriterPrompt } from '../TypewriterPrompt/TypewriterPrompt'
 import { WildEncounterQuestionStep } from '../WildEncounterQuestionStep/WildEncounterQuestionStep'
 
-export function SurveyFlow() {
+type SurveyFlowProps = {
+  onHasStartedJourneyChange?: (hasStartedJourney: boolean) => void
+}
+
+export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
   const { answers, setAnswer } = useSurveyAnswers()
   const [hasStartedJourney, setHasStartedJourney] = useState(false)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [isSurveySubmitted, setIsSurveySubmitted] = useState(false)
+
+  useEffect(() => {
+    onHasStartedJourneyChange?.(hasStartedJourney)
+  }, [hasStartedJourney, onHasStartedJourneyChange])
 
   const hasActiveQuestion = hasStartedJourney && currentQuestionIndex < surveyQuestions.length
   const activeQuestion = hasActiveQuestion ? surveyQuestions[currentQuestionIndex] : null
@@ -153,7 +161,7 @@ export function SurveyFlow() {
     <>
       {!hasStartedJourney ? (
         <div className="game-panel">
-          <TypewriterPrompt text="A new Pokemon journey is about to begin..." />
+          <TypewriterPrompt text="Click `Begin journey` to get your pokemon profile" />
           <button
             type="button"
             className="pixel-button"
@@ -225,7 +233,7 @@ export function SurveyFlow() {
         )
       ) : null}
 
-      {hasStartedJourney ? (
+      {isSurveySubmitted ? (
         <div className="game-panel">
           <p>
             Current trainer name: <strong>{trainerFullName}</strong>

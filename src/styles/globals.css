@@ -55,9 +55,13 @@ body::before {
 
 #root {
   min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .screen-shell {
+  width: 100%;
   padding: 1rem;
   max-width: 52rem;
   margin: 0 auto;
@@ -74,6 +78,7 @@ body::before {
 .screen-header h1 {
   margin: 0;
   font-size: clamp(1.4rem, 5vw, 2rem);
+  text-align: center;
 }
 
 .screen-kicker {
@@ -82,12 +87,14 @@ body::before {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   font-size: 0.75rem;
+  text-align: center;
 }
 
 .screen-subtitle {
   margin: 0.5rem 0 0;
   color: var(--text-dim);
   font-size: 0.95rem;
+  text-align: center;
 }
 
 .game-panel {
@@ -103,6 +110,7 @@ body::before {
   margin: 0;
   color: var(--text);
   min-height: 1.5rem;
+  text-align: center;
 }
 
 .pixel-label {
@@ -228,7 +236,7 @@ body::before {
   line-height: 1.2;
   min-height: 44px;
   padding: 0.5rem 0.6rem;
-  text-align: left;
+  text-align: center;
 }
 
 .region-option-button.is-selected {
@@ -257,7 +265,8 @@ body::before {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  text-align: left;
+  text-align: center;
+  justify-content: center;
 }
 
 .starter-option-button.is-selected {
@@ -299,7 +308,7 @@ body::before {
   line-height: 1.2;
   min-height: 44px;
   padding: 0.5rem 0.6rem;
-  text-align: left;
+  text-align: center;
 }
 
 .trait-option-button.is-selected {
@@ -328,7 +337,7 @@ body::before {
   line-height: 1.25;
   min-height: 48px;
   padding: 0.55rem 0.65rem;
-  text-align: left;
+  text-align: center;
 }
 
 .pseudo-option-button.is-selected {
@@ -359,6 +368,10 @@ body::before {
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
+  text-align: center;
+}
+
+button {
   text-align: center;
 }
 
@@ -432,6 +445,7 @@ body::before {
   border-radius: 0.4rem;
   padding: 0.7rem 1rem;
   width: 100%;
+  margin-inline: auto;
 }
 
 .pixel-button-secondary {
