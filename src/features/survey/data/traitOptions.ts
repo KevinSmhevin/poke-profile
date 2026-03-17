@@ -1,4 +1,5 @@
 import type { TraitOption } from '../types'
+import { getPublicAssetPath } from '../../../services/assets/publicAsset'
 
 type TraitSeed = Omit<TraitOption, 'id' | 'gifSrc'>
 
@@ -65,6 +66,8 @@ export const traitOptions: TraitOption[] = TRAIT_SEEDS.map((seed) => {
   return {
     ...seed,
     id: normalizedName,
-    gifSrc: `/images/eeveelutions/showdown/${seed.eeveelutionNumber}-${normalizedName}.gif`,
+    gifSrc: getPublicAssetPath(
+      `images/eeveelutions/showdown/${seed.eeveelutionNumber}-${normalizedName}.gif`,
+    ),
   }
 })

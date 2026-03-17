@@ -1,4 +1,5 @@
 import type { StarterOption } from '../types'
+import { getPublicAssetPath } from '../../../services/assets/publicAsset'
 
 type StarterSeed = {
   name: string
@@ -66,7 +67,9 @@ function buildStarterOption(starterSeed: StarterSeed): StarterOption {
     id: normalizedName,
     name: starterSeed.name,
     pokemonNumber: starterSeed.pokemonNumber,
-    gifSrc: `/images/pokemon-starters/showdown/${starterSeed.pokemonNumber}-${normalizedName}.gif`,
+    gifSrc: getPublicAssetPath(
+      `images/pokemon-starters/showdown/${starterSeed.pokemonNumber}-${normalizedName}.gif`,
+    ),
   }
 }
 

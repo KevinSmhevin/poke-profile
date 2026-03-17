@@ -168,6 +168,16 @@ body::before {
   overflow-x: auto;
 }
 
+.dob-mobile-picker {
+  width: 100%;
+  max-width: 320px;
+  margin-inline: auto;
+}
+
+.dob-mobile-picker-trigger {
+  text-align: center;
+}
+
 .dob-calendar-wrapper .rdp-root {
   --rdp-accent-color: var(--blue);
   --rdp-accent-background-color: rgb(77 163 255 / 0.25);

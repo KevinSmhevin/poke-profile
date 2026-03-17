@@ -1,4 +1,5 @@
 import type { SurveyQuestion } from '../types'
+import { getPublicAssetPath } from '../../../services/assets/publicAsset'
 import { starterOptionsByRegionId } from './starterOptionsByRegion'
 import { traitOptions } from './traitOptions'
 import { pseudoLegendaryOptions } from './pseudoLegendaryOptions'
@@ -41,7 +42,7 @@ const REGION_NAMES = [
 const pokemonTypeOptions = POKEMON_TYPES.map((type) => ({
   id: type,
   label: `${type.charAt(0).toUpperCase()}${type.slice(1)}`,
-  imageSrc: `/images/pokemon-types/name-icons/${type}.png`,
+  imageSrc: getPublicAssetPath(`images/pokemon-types/name-icons/${type}.png`),
 }))
 
 const regionOptions = REGION_NAMES.map((name, index) => ({
