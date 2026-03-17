@@ -50,7 +50,6 @@ export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
       .map((question) => answers[question.id])
       .filter(Boolean)
       .join(' ') || 'Not set yet'
-  const dobAnswer = answers.dateOfBirth ?? 'Not set yet'
   const pokemonTypeQuestion = surveyQuestions.find(
     (question): question is PokemonTypeSurveyQuestion =>
       question.type === 'pokemonType' && question.id === 'favoritePokemonType',
@@ -66,7 +65,8 @@ export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
   const selectedRegion = regionQuestion?.options.find(
     (option) => option.id === answers.trainerRegion,
   )
-  const trainerRegionAnswer = selectedRegion?.label ?? 'Not set yet'
+  const trainerRegionAnswer =
+    selectedRegion?.label.replace(/^\d+\.\s*/, '') ?? 'Not set yet'
   const starterQuestion = surveyQuestions.find(
     (question): question is StarterSurveyQuestion =>
       question.type === 'starter' && question.id === 'starterPokemon',
@@ -90,9 +90,7 @@ export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
   const selectedTraitOption = traitsQuestion?.options.find(
     (option) => option.id === answers.personalityTraits,
   )
-  const eeveelutionAnswer = selectedTraitOption
-    ? `#${selectedTraitOption.eeveelutionNumber} ${selectedTraitOption.eeveelutionName}`
-    : 'Not set yet'
+  const eeveelutionAnswer = selectedTraitOption ? selectedTraitOption.eeveelutionName : 'Not set yet'
   const pseudoLegendaryQuestion = surveyQuestions.find(
     (question): question is PseudoLegendarySurveyQuestion =>
       question.type === 'pseudoLegendary' && question.id === 'pseudoLegendaryPartner',
@@ -101,7 +99,7 @@ export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
     (option) => option.id === answers.pseudoLegendaryPartner,
   )
   const pseudoLegendaryAnswer = selectedPseudoLegendary
-    ? `#${selectedPseudoLegendary.pseudoLegendaryNumber} ${selectedPseudoLegendary.pseudoLegendaryName}`
+    ? selectedPseudoLegendary.pseudoLegendaryName
     : 'Not set yet'
   const randomTeammatePokemonId = Number.parseInt(answers.randomTeammatePokemon ?? '', 10)
   const normalizedRandomTeammateId = Number.isNaN(randomTeammatePokemonId)
@@ -137,6 +135,232 @@ export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
     pokemonGifUrl: deterministicTypeTeammateResult.pokemonGifUrl,
     pokemonImageUrl: deterministicTypeTeammateResult.pokemonImageUrl,
   })
+  const legendaryResultValue = deterministicLegendaryResult.isLoading
+    ? 'Calculating...'
+    : deterministicLegendaryResult.errorMessage
+      ? deterministicLegendaryResult.errorMessage
+      : deterministicLegendaryResult.pokemonNumber && deterministicLegendaryResult.pokemonName
+        ? deterministicLegendaryResult.pokemonName
+        : 'Complete first name, last name, DOB, and pseudo-legendary to reveal.'
+  const legendaryResultDisplayMediaSrc =
+    deterministicLegendaryResult.pokemonNumber && deterministicLegendaryResult.pokemonName
+      ? deterministicLegendaryMediaSrc
+      : null
+  const pokemonYouAreValue = deterministicPokemonResult.isLoading
+    ? 'Calculating...'
+    : deterministicPokemonResult.errorMessage
+      ? deterministicPokemonResult.errorMessage
+      : deterministicPokemonResult.pokemonNumber && deterministicPokemonResult.pokemonName
+        ? deterministicPokemonResult.pokemonName
+        : 'Complete first name, last name, and DOB to reveal.'
+  const pokemonYouAreDisplayMediaSrc =
+    deterministicPokemonResult.pokemonNumber && deterministicPokemonResult.pokemonName
+      ? deterministicPokemonMediaSrc
+      : null
+  const infoGridItems = [
+    {
+      id: 'favorite-type',
+      title: 'Favorite type',
+      value: selectedFavoriteType ? '' : favoriteTypeAnswer,
+      mediaSrc: selectedFavoriteType?.imageSrc ?? null,
+      mediaAlt: selectedFavoriteType?.label ?? 'Favorite type',
+    },
+    {
+      id: 'starter',
+      title: 'Starter',
+      value: starterAnswer,
+      mediaSrc: selectedStarter?.gifSrc ?? null,
+      mediaAlt: selectedStarter?.name ?? 'Starter',
+    },
+    {
+      id: 'region',
+      title: 'Region',
+      value: trainerRegionAnswer,
+      mediaSrc: null,
+      mediaAlt: 'Region',
+    },
+    {
+      id: 'eeveelution',
+      title: 'Your Eeveelution',
+      value: eeveelutionAnswer,
+      mediaSrc: selectedTraitOption?.gifSrc ?? null,
+      mediaAlt: selectedTraitOption?.eeveelutionName ?? 'Eeveelution',
+    },
+    {
+      id: 'pseudo-legendary',
+      title: 'Pseudo-legendary you chose',
+      value: pseudoLegendaryAnswer,
+      mediaSrc: selectedPseudoLegendary?.gifSrc ?? null,
+      mediaAlt: selectedPseudoLegendary?.pseudoLegendaryName ?? 'Pseudo-legendary choice',
+    },
+    {
+      id: 'legendary-result',
+      title: 'Your Legendary Pokemon',
+      value: legendaryResultValue,
+      mediaSrc: legendaryResultDisplayMediaSrc,
+      mediaAlt: deterministicLegendaryResult.pokemonName ?? 'Legendary result',
+    },
+    {
+      id: 'pokemon-you-are',
+      title: 'Pokemon you are',
+      value: pokemonYouAreValue,
+      mediaSrc: pokemonYouAreDisplayMediaSrc,
+      mediaAlt: deterministicPokemonResult.pokemonName ?? 'Pokemon you are',
+    },
+  ]
+  const teamGridItems = [
+    starterFinalEvolution.isLoading
+      ? {
+          id: 'starter-final-evolution',
+          label: 'Calculating...',
+          mediaSrc: null,
+          mediaAlt: 'Team member',
+        }
+      : starterFinalEvolution.errorMessage
+        ? {
+            id: 'starter-final-evolution',
+            label: starterFinalEvolution.errorMessage,
+            mediaSrc: null,
+            mediaAlt: 'Team member',
+          }
+        : starterFinalEvolution.pokemonNumber && starterFinalEvolution.pokemonName
+          ? {
+              id: 'starter-final-evolution',
+              label: starterFinalEvolution.pokemonName,
+              mediaSrc: starterFinalEvolutionMediaSrc,
+              mediaAlt: starterFinalEvolution.pokemonName,
+            }
+          : {
+              id: 'starter-final-evolution',
+              label: 'No selection yet.',
+              mediaSrc: null,
+              mediaAlt: 'Team member',
+            },
+    selectedPseudoLegendary
+      ? {
+          id: 'pseudo-legendary',
+          label: selectedPseudoLegendary.pseudoLegendaryName,
+          mediaSrc: selectedPseudoLegendary.gifSrc,
+          mediaAlt: selectedPseudoLegendary.pseudoLegendaryName,
+        }
+      : {
+          id: 'pseudo-legendary',
+          label: 'No selection yet.',
+          mediaSrc: null,
+          mediaAlt: 'Team member',
+        },
+    deterministicRegionalTeammateResult.isLoading
+      ? {
+          id: 'regional',
+          label: 'Calculating...',
+          mediaSrc: null,
+          mediaAlt: 'Team member',
+        }
+      : deterministicRegionalTeammateResult.errorMessage
+        ? {
+            id: 'regional',
+            label: deterministicRegionalTeammateResult.errorMessage,
+            mediaSrc: null,
+            mediaAlt: 'Team member',
+          }
+        : deterministicRegionalTeammateResult.pokemonNumber &&
+            deterministicRegionalTeammateResult.pokemonName
+          ? {
+              id: 'regional',
+              label: deterministicRegionalTeammateResult.pokemonName,
+              mediaSrc: deterministicRegionalTeammateMediaSrc,
+              mediaAlt: deterministicRegionalTeammateResult.pokemonName,
+            }
+          : {
+              id: 'regional',
+              label: 'No selection yet.',
+              mediaSrc: null,
+              mediaAlt: 'Team member',
+            },
+    deterministicTypeTeammateResult.isLoading
+      ? {
+          id: 'type',
+          label: 'Calculating...',
+          mediaSrc: null,
+          mediaAlt: 'Team member',
+        }
+      : deterministicTypeTeammateResult.errorMessage
+        ? {
+            id: 'type',
+            label: deterministicTypeTeammateResult.errorMessage,
+            mediaSrc: null,
+            mediaAlt: 'Team member',
+          }
+        : deterministicTypeTeammateResult.pokemonNumber &&
+            deterministicTypeTeammateResult.pokemonName
+          ? {
+              id: 'type',
+              label: deterministicTypeTeammateResult.pokemonName,
+              mediaSrc: deterministicTypeTeammateMediaSrc,
+              mediaAlt: deterministicTypeTeammateResult.pokemonName,
+            }
+          : {
+              id: 'type',
+              label: 'No selection yet.',
+              mediaSrc: null,
+              mediaAlt: 'Team member',
+            },
+    deterministicTeamMemberFiveResult.isLoading
+      ? {
+          id: 'deterministic',
+          label: 'Calculating...',
+          mediaSrc: null,
+          mediaAlt: 'Team member',
+        }
+      : deterministicTeamMemberFiveResult.errorMessage
+        ? {
+            id: 'deterministic',
+            label: deterministicTeamMemberFiveResult.errorMessage,
+            mediaSrc: null,
+            mediaAlt: 'Team member',
+          }
+        : deterministicTeamMemberFiveResult.pokemonNumber &&
+            deterministicTeamMemberFiveResult.pokemonName
+          ? {
+              id: 'deterministic',
+              label: deterministicTeamMemberFiveResult.pokemonName,
+              mediaSrc: deterministicTeamMemberFiveMediaSrc,
+              mediaAlt: deterministicTeamMemberFiveResult.pokemonName,
+            }
+          : {
+              id: 'deterministic',
+              label: 'No selection yet.',
+              mediaSrc: null,
+              mediaAlt: 'Team member',
+            },
+    randomTeammatePokemon.isLoading
+      ? {
+          id: 'random',
+          label: 'Awaiting wild encounter selection...',
+          mediaSrc: null,
+          mediaAlt: 'Team member',
+        }
+      : randomTeammatePokemon.errorMessage
+        ? {
+            id: 'random',
+            label: randomTeammatePokemon.errorMessage,
+            mediaSrc: null,
+            mediaAlt: 'Team member',
+          }
+        : randomTeammatePokemon.requestedPokemonId && randomTeammatePokemon.pokemonName
+          ? {
+              id: 'random',
+              label: randomTeammatePokemon.pokemonName,
+              mediaSrc: randomTeammateMediaSrc,
+              mediaAlt: randomTeammatePokemon.pokemonName,
+            }
+          : {
+              id: 'random',
+              label: 'No selection yet.',
+              mediaSrc: null,
+              mediaAlt: 'Team member',
+            },
+  ]
 
   const handleCurrentQuestionValueChange = (value: string) => {
     if (!activeQuestion) {
@@ -172,7 +396,7 @@ export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
         </div>
       ) : null}
 
-      {activeQuestion ? (
+      {activeQuestion && !isSurveySubmitted ? (
         activeQuestion.type === 'text' ? (
           <TextQuestionStep
             question={activeQuestion}
@@ -234,282 +458,42 @@ export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
       ) : null}
 
       {isSurveySubmitted ? (
-        <div className="game-panel">
-          <p>
-            Current trainer name: <strong>{trainerFullName}</strong>
-          </p>
-          <p>
-            Date of birth: <strong>{dobAnswer}</strong>
-          </p>
-          <div className="result-media-row">
-            <span>Favorite type:</span>
-            <strong>{favoriteTypeAnswer}</strong>
-            {selectedFavoriteType ? (
-              <img
-                src={selectedFavoriteType.imageSrc}
-                alt={selectedFavoriteType.label}
-                className="result-inline-media"
-              />
-            ) : null}
+        <div className="game-panel results-panel">
+          <h1>
+            Trainer <strong>{trainerFullName}</strong> Results
+          </h1>
+          <div className="result-info-grid">
+            {infoGridItems.map((resultItem) => (
+              <div key={resultItem.id} className="result-info-card">
+                <span className="result-info-label">{resultItem.title}</span>
+                {resultItem.value ? (
+                  <strong className="result-info-value">{resultItem.value}</strong>
+                ) : null}
+                {resultItem.mediaSrc ? (
+                  <img
+                    src={resultItem.mediaSrc}
+                    alt={resultItem.mediaAlt}
+                    className="result-inline-media result-starter-media result-info-media"
+                  />
+                ) : null}
+              </div>
+            ))}
           </div>
-          <p>
-            Region: <strong>{trainerRegionAnswer}</strong>
-          </p>
-          <div className="result-media-row">
-            <span>Starter:</span>
-            <strong>{starterAnswer}</strong>
-            {selectedStarter ? (
-              <img
-                src={selectedStarter.gifSrc}
-                alt={selectedStarter.name}
-                className="result-inline-media result-starter-media"
-              />
-            ) : null}
+          <p className="team-grid-description">Your 6 man pokemon team is</p>
+          <div className="result-team-grid">
+            {teamGridItems.map((teamGridItem) => (
+              <div key={teamGridItem.id} className="result-team-card">
+                {teamGridItem.mediaSrc ? (
+                  <img
+                    src={teamGridItem.mediaSrc}
+                    alt={teamGridItem.mediaAlt}
+                    className="result-inline-media result-starter-media result-team-card-media"
+                  />
+                ) : null}
+                <strong>{teamGridItem.label}</strong>
+              </div>
+            ))}
           </div>
-          {starterFinalEvolution.isLoading ? (
-            <p>
-              Team member 1 (Starter Final Evo): <strong>Calculating...</strong>
-            </p>
-          ) : starterFinalEvolution.errorMessage ? (
-            <p>
-              Team member 1 (Starter Final Evo):{' '}
-              <strong>{starterFinalEvolution.errorMessage}</strong>
-            </p>
-          ) : starterFinalEvolution.pokemonNumber && starterFinalEvolution.pokemonName ? (
-            <div className="result-media-row">
-              <span>Team member 1 (Starter Final Evo):</span>
-              <strong>
-                #{starterFinalEvolution.pokemonNumber} {starterFinalEvolution.pokemonName}
-              </strong>
-              {starterFinalEvolutionMediaSrc ? (
-                <img
-                  src={starterFinalEvolutionMediaSrc}
-                  alt={starterFinalEvolution.pokemonName}
-                  className="result-inline-media result-starter-media"
-                />
-              ) : null}
-            </div>
-          ) : (
-            <p>
-              Team member 1 (Starter Final Evo): <strong>No selection yet.</strong>
-            </p>
-          )}
-          <div className="result-media-row">
-            <span>Eeveelution:</span>
-            <strong>{eeveelutionAnswer}</strong>
-            {selectedTraitOption ? (
-              <img
-                src={selectedTraitOption.gifSrc}
-                alt={selectedTraitOption.eeveelutionName}
-                className="result-inline-media result-starter-media"
-              />
-            ) : null}
-          </div>
-          <div className="result-media-row">
-            <span>Pseudo-legendary choice:</span>
-            <strong>{pseudoLegendaryAnswer}</strong>
-            {selectedPseudoLegendary ? (
-              <img
-                src={selectedPseudoLegendary.gifSrc}
-                alt={selectedPseudoLegendary.pseudoLegendaryName}
-                className="result-inline-media result-starter-media"
-              />
-            ) : null}
-          </div>
-          <div className="result-media-row">
-            <span>Team member 2 (Pseudo-legendary):</span>
-            <strong>{pseudoLegendaryAnswer}</strong>
-            {selectedPseudoLegendary ? (
-              <img
-                src={selectedPseudoLegendary.gifSrc}
-                alt={selectedPseudoLegendary.pseudoLegendaryName}
-                className="result-inline-media result-starter-media"
-              />
-            ) : null}
-          </div>
-          {deterministicRegionalTeammateResult.isLoading ? (
-            <p>
-              Team member 3 (Regional): <strong>Calculating...</strong>
-            </p>
-          ) : deterministicRegionalTeammateResult.errorMessage ? (
-            <p>
-              Team member 3 (Regional):{' '}
-              <strong>{deterministicRegionalTeammateResult.errorMessage}</strong>
-            </p>
-          ) : deterministicRegionalTeammateResult.pokemonNumber &&
-            deterministicRegionalTeammateResult.pokemonName ? (
-            <div className="result-media-row">
-              <span>Team member 3 (Regional):</span>
-              <strong>
-                #{deterministicRegionalTeammateResult.pokemonNumber}{' '}
-                {deterministicRegionalTeammateResult.pokemonName}
-              </strong>
-              {deterministicRegionalTeammateMediaSrc ? (
-                <img
-                  src={deterministicRegionalTeammateMediaSrc}
-                  alt={deterministicRegionalTeammateResult.pokemonName}
-                  className="result-inline-media result-starter-media"
-                />
-              ) : null}
-            </div>
-          ) : (
-            <p>
-              Team member 3 (Regional): <strong>No selection yet.</strong>
-            </p>
-          )}
-          {deterministicTypeTeammateResult.isLoading ? (
-            <p>
-              Team member 4 (Type): <strong>Calculating...</strong>
-            </p>
-          ) : deterministicTypeTeammateResult.errorMessage ? (
-            <p>
-              Team member 4 (Type): <strong>{deterministicTypeTeammateResult.errorMessage}</strong>
-            </p>
-          ) : deterministicTypeTeammateResult.pokemonNumber &&
-            deterministicTypeTeammateResult.pokemonName ? (
-            <div className="result-media-row">
-              <span>Team member 4 (Type):</span>
-              <strong>
-                #{deterministicTypeTeammateResult.pokemonNumber}{' '}
-                {deterministicTypeTeammateResult.pokemonName}
-              </strong>
-              {deterministicTypeTeammateMediaSrc ? (
-                <img
-                  src={deterministicTypeTeammateMediaSrc}
-                  alt={deterministicTypeTeammateResult.pokemonName}
-                  className="result-inline-media result-starter-media"
-                />
-              ) : null}
-            </div>
-          ) : (
-            <p>
-              Team member 4 (Type): <strong>No selection yet.</strong>
-            </p>
-          )}
-          {randomTeammatePokemon.isLoading ? (
-            <p>
-              Team member 6 (Random): <strong>Awaiting wild encounter selection...</strong>
-            </p>
-          ) : randomTeammatePokemon.errorMessage ? (
-            <p>
-              Team member 6 (Random): <strong>{randomTeammatePokemon.errorMessage}</strong>
-            </p>
-          ) : randomTeammatePokemon.requestedPokemonId && randomTeammatePokemon.pokemonName ? (
-            <div className="result-media-row">
-              <span>Team member 6 (Random):</span>
-              <strong>
-                #{randomTeammatePokemon.requestedPokemonId} {randomTeammatePokemon.pokemonName}
-              </strong>
-              {randomTeammateMediaSrc ? (
-                <img
-                  src={randomTeammateMediaSrc}
-                  alt={randomTeammatePokemon.pokemonName}
-                  className="result-inline-media result-starter-media"
-                />
-              ) : null}
-            </div>
-          ) : (
-            <p>
-              Team member 6 (Random): <strong>No selection yet.</strong>
-            </p>
-          )}
-          {deterministicLegendaryResult.isLoading ? (
-            <p>
-              Legendary result: <strong>Calculating...</strong>
-            </p>
-          ) : deterministicLegendaryResult.errorMessage ? (
-            <p>
-              Legendary result: <strong>{deterministicLegendaryResult.errorMessage}</strong>
-            </p>
-          ) : deterministicLegendaryResult.pokemonNumber &&
-            deterministicLegendaryResult.pokemonName ? (
-            <div className="result-media-row">
-              <span>Legendary result:</span>
-              <strong>
-                #{deterministicLegendaryResult.pokemonNumber}{' '}
-                {deterministicLegendaryResult.pokemonName}
-              </strong>
-              {deterministicLegendaryMediaSrc ? (
-                <img
-                  src={deterministicLegendaryMediaSrc}
-                  alt={deterministicLegendaryResult.pokemonName}
-                  className="result-inline-media result-starter-media"
-                />
-              ) : null}
-            </div>
-          ) : (
-            <p>
-              Legendary result:{' '}
-              <strong>
-                Complete first name, last name, DOB, and pseudo-legendary to reveal.
-              </strong>
-            </p>
-          )}
-          {isSurveySubmitted ? (
-            <p className="saved-note">Profile saved. Your team lineup is forming.</p>
-          ) : null}
-          {deterministicPokemonResult.isLoading ? (
-            <p>
-              Pokemon you are: <strong>Calculating...</strong>
-            </p>
-          ) : deterministicPokemonResult.errorMessage ? (
-            <p>
-              Pokemon you are: <strong>{deterministicPokemonResult.errorMessage}</strong>
-            </p>
-          ) : deterministicPokemonResult.pokemonNumber &&
-            deterministicPokemonResult.pokemonName ? (
-            <div className="result-media-row">
-              <span>Pokemon you are:</span>
-              <strong>
-                #{deterministicPokemonResult.pokemonNumber} {deterministicPokemonResult.pokemonName}
-              </strong>
-              {deterministicPokemonMediaSrc ? (
-                <img
-                  src={deterministicPokemonMediaSrc}
-                  alt={deterministicPokemonResult.pokemonName}
-                  className="result-inline-media result-starter-media"
-                />
-              ) : null}
-            </div>
-          ) : (
-            <p>
-              Pokemon you are: <strong>Complete first name, last name, and DOB to reveal.</strong>
-            </p>
-          )}
-          {deterministicTeamMemberFiveResult.isLoading ? (
-            <p>
-              Team member 5 (Deterministic): <strong>Calculating...</strong>
-            </p>
-          ) : deterministicTeamMemberFiveResult.errorMessage ? (
-            <p>
-              Team member 5 (Deterministic):{' '}
-              <strong>{deterministicTeamMemberFiveResult.errorMessage}</strong>
-            </p>
-          ) : deterministicTeamMemberFiveResult.pokemonNumber &&
-            deterministicTeamMemberFiveResult.pokemonName ? (
-            <div className="result-media-row">
-              <span>Team member 5 (Deterministic):</span>
-              <strong>
-                #{deterministicTeamMemberFiveResult.pokemonNumber}{' '}
-                {deterministicTeamMemberFiveResult.pokemonName}
-              </strong>
-              {deterministicTeamMemberFiveMediaSrc ? (
-                <img
-                  src={deterministicTeamMemberFiveMediaSrc}
-                  alt={deterministicTeamMemberFiveResult.pokemonName}
-                  className="result-inline-media result-starter-media"
-                />
-              ) : null}
-            </div>
-          ) : (
-            <p>
-              Team member 5 (Deterministic):{' '}
-              <strong>
-                Complete all deterministic questions (everything except random encounter) to
-                reveal.
-              </strong>
-            </p>
-          )}
         </div>
       ) : null}
     </>

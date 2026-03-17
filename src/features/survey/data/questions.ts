@@ -72,7 +72,7 @@ export const surveyQuestions: SurveyQuestion[] = [
   {
     type: 'date',
     id: 'dateOfBirth',
-    prompt: 'Now choose your date of birth.',
+    prompt: 'What is your date of birth?',
     label: 'Date of birth',
     fromYear: CURRENT_YEAR - 120,
     toYear: CURRENT_YEAR,
@@ -119,7 +119,7 @@ export const surveyQuestions: SurveyQuestion[] = [
     label: 'Choose one Pokemon',
     optionCount: 18,
     minLoadingMs: 5000,
-    initialApproachPrompt: '... something is approaching you from behind',
-    rerollApproachPrompt: 'Ok... another pokemon is approaching..',
+    initialApproachPrompt: '... something is approaching you from behind...',
+    rerollApproachPrompt: 'Ok... another pokemon is approaching...',
   },
 ]

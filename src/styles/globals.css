@@ -162,6 +162,10 @@ body::before {
   border-radius: 0.5rem;
   padding: 0.5rem;
   background: #11161c;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  overflow-x: auto;
 }
 
 .dob-calendar-wrapper .rdp-root {
@@ -169,6 +173,10 @@ body::before {
   --rdp-accent-background-color: rgb(77 163 255 / 0.25);
   --rdp-day_button-border-radius: 0.3rem;
   --rdp-selected-border: 1px solid var(--blue);
+  --rdp-day-width: 34px;
+  --rdp-day-height: 34px;
+  --rdp-nav_button-width: 28px;
+  --rdp-nav_button-height: 28px;
   margin: 0;
 }
 
@@ -182,6 +190,14 @@ body::before {
 
 .dob-calendar-wrapper .rdp-chevron {
   fill: var(--text);
+}
+
+.dob-calendar-wrapper .rdp-months {
+  justify-content: center;
+}
+
+.dob-calendar-wrapper .rdp-month {
+  margin: 0;
 }
 
 .type-option-grid {
@@ -424,6 +440,82 @@ button {
   height: 56px;
 }
 
+.team-grid-description {
+  margin: 0.35rem 0 0;
+  color: var(--text-dim);
+}
+
+.results-panel {
+  text-align: center;
+}
+
+.result-info-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.result-info-card {
+  min-height: 120px;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  padding: 0.7rem 0.6rem;
+  background: #11161c;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.result-info-grid > .result-info-card:last-child:nth-child(3n + 1) {
+  grid-column: 2;
+}
+
+.result-info-label {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.result-info-value {
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.result-info-media {
+  flex-shrink: 0;
+}
+
+.result-team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.result-team-card {
+  min-height: 120px;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  padding: 0.6rem;
+  background: #11161c;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  text-align: center;
+}
+
+.result-team-card-media {
+  flex-shrink: 0;
+}
+
+.result-team-card strong {
+  font-size: 0.86rem;
+  line-height: 1.2;
+}
+
 .cursor {
   display: inline-block;
   color: var(--yellow);
@@ -482,6 +574,13 @@ button {
     width: fit-content;
   }
 
+  .dob-calendar-wrapper .rdp-root {
+    --rdp-day-width: 40px;
+    --rdp-day-height: 40px;
+    --rdp-nav_button-width: 32px;
+    --rdp-nav_button-height: 32px;
+  }
+
   .type-option-grid {
     grid-template-columns: repeat(6, minmax(84px, 1fr));
   }
@@ -518,4 +617,5 @@ button {
   .wild-option-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
 }
