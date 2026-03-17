@@ -22,11 +22,36 @@ export function getDeterministicInputSignature(answers: SurveyAnswers): string {
 
   return [
     `algorithm:${HASH_ALGORITHM_VERSION}`,
+    'resultPool:pokemon-you-are',
     `firstName:${firstName}`,
     `lastName:${lastName}`,
     `dateOfBirth:${dateOfBirth}`,
     `region:${region}`,
     `favoriteType:${favoriteType}`,
+  ].join('|')
+}
+
+export function getTeamMemberFiveInputSignature(answers: SurveyAnswers): string {
+  const firstName = normalizeInputValue(answers.firstName)
+  const lastName = normalizeInputValue(answers.lastName)
+  const dateOfBirth = normalizeInputValue(answers.dateOfBirth)
+  const region = normalizeInputValue(answers.trainerRegion)
+  const favoriteType = normalizeInputValue(answers.favoritePokemonType)
+  const starterPokemon = normalizeInputValue(answers.starterPokemon)
+  const personalityTraits = normalizeInputValue(answers.personalityTraits)
+  const pseudoLegendaryPartner = normalizeInputValue(answers.pseudoLegendaryPartner)
+
+  return [
+    `algorithm:${HASH_ALGORITHM_VERSION}`,
+    'resultPool:team-member-5',
+    `firstName:${firstName}`,
+    `lastName:${lastName}`,
+    `dateOfBirth:${dateOfBirth}`,
+    `region:${region}`,
+    `favoriteType:${favoriteType}`,
+    `starterPokemon:${starterPokemon}`,
+    `personalityTraits:${personalityTraits}`,
+    `pseudoLegendaryPartner:${pseudoLegendaryPartner}`,
   ].join('|')
 }
 
@@ -51,6 +76,33 @@ export function hasRequiredLegendaryAnswers(answers: SurveyAnswers): boolean {
   return hasRequiredIdentityAnswers(answers) && Boolean(pseudoLegendaryPartner)
 }
 
+export function hasRequiredRegionalTeammateAnswers(answers: SurveyAnswers): boolean {
+  const trainerRegion = normalizeInputValue(answers.trainerRegion)
+  return hasRequiredIdentityAnswers(answers) && Boolean(trainerRegion)
+}
+
+export function hasRequiredTypeTeammateAnswers(answers: SurveyAnswers): boolean {
+  const favoritePokemonType = normalizeInputValue(answers.favoritePokemonType)
+  return hasRequiredIdentityAnswers(answers) && Boolean(favoritePokemonType)
+}
+
+export function hasRequiredTeamMemberFiveAnswers(answers: SurveyAnswers): boolean {
+  const trainerRegion = normalizeInputValue(answers.trainerRegion)
+  const favoritePokemonType = normalizeInputValue(answers.favoritePokemonType)
+  const starterPokemon = normalizeInputValue(answers.starterPokemon)
+  const personalityTraits = normalizeInputValue(answers.personalityTraits)
+  const pseudoLegendaryPartner = normalizeInputValue(answers.pseudoLegendaryPartner)
+
+  return (
+    hasRequiredIdentityAnswers(answers) &&
+    Boolean(trainerRegion) &&
+    Boolean(favoritePokemonType) &&
+    Boolean(starterPokemon) &&
+    Boolean(personalityTraits) &&
+    Boolean(pseudoLegendaryPartner)
+  )
+}
+
 async function hashInputToUint32(input: string): Promise<number> {
   const encoder = new TextEncoder()
   const inputBytes = encoder.encode(input)
@@ -69,6 +121,27 @@ export async function getDeterministicPokemonNumber(
   return (hashValue % POKEMON_RESULT_COUNT) + 1
 }
 
+export async function getDeterministicTeamMemberFivePokemonNumber(
+  answers: SurveyAnswers,
+): Promise<number> {
+  const deterministicInput = getTeamMemberFiveInputSignature(answers)
+  const hashValue = await hashInputToUint32(deterministicInput)
+
+  return (hashValue % POKEMON_RESULT_COUNT) + 1
+}
+
+export async function getDeterministicIndexFromSignature(
+  signature: string,
+  poolSize: number,
+): Promise<number> {
+  if (poolSize <= 0) {
+    throw new Error('Pool size must be greater than zero.')
+  }
+
+  const hashValue = await hashInputToUint32(signature)
+  return hashValue % poolSize
+}
+
 export function getLegendaryInputSignature(answers: SurveyAnswers): string {
   const firstName = normalizeInputValue(answers.firstName)
   const lastName = normalizeInputValue(answers.lastName)
@@ -82,6 +155,45 @@ export function getLegendaryInputSignature(answers: SurveyAnswers): string {
     `lastName:${lastName}`,
     `dateOfBirth:${dateOfBirth}`,
     `pseudoLegendaryPartner:${pseudoLegendaryPartner}`,
+  ].join('|')
+}
+
+export function getRegionalTeammateInputSignature(
+  answers: SurveyAnswers,
+  generationId: number,
+): string {
+  const firstName = normalizeInputValue(answers.firstName)
+  const lastName = normalizeInputValue(answers.lastName)
+  const dateOfBirth = normalizeInputValue(answers.dateOfBirth)
+  const trainerRegion = normalizeInputValue(answers.trainerRegion)
+
+  return [
+    `algorithm:${HASH_ALGORITHM_VERSION}`,
+    'resultPool:regional-teammate',
+    `firstName:${firstName}`,
+    `lastName:${lastName}`,
+    `dateOfBirth:${dateOfBirth}`,
+    `trainerRegion:${trainerRegion}`,
+    `generationId:${generationId}`,
+  ].join('|')
+}
+
+export function getTypeTeammateInputSignature(
+  answers: SurveyAnswers,
+  pokemonType: string,
+): string {
+  const firstName = normalizeInputValue(answers.firstName)
+  const lastName = normalizeInputValue(answers.lastName)
+  const dateOfBirth = normalizeInputValue(answers.dateOfBirth)
+  const favoriteType = normalizeInputValue(pokemonType)
+
+  return [
+    `algorithm:${HASH_ALGORITHM_VERSION}`,
+    'resultPool:type-teammate',
+    `firstName:${firstName}`,
+    `lastName:${lastName}`,
+    `dateOfBirth:${dateOfBirth}`,
+    `favoriteType:${favoriteType}`,
   ].join('|')
 }
 
