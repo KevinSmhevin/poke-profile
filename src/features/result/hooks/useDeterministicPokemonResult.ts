@@ -12,6 +12,8 @@ type DeterministicPokemonResult = {
   inputSignature: string | null
   pokemonNumber: number | null
   pokemonName: string | null
+  pokemonImageUrl: string | null
+  pokemonGifUrl: string | null
   isLoading: boolean
   errorMessage: string | null
 }
@@ -20,13 +22,17 @@ const initialResultState: DeterministicPokemonResult = {
   inputSignature: null,
   pokemonNumber: null,
   pokemonName: null,
+  pokemonImageUrl: null,
+  pokemonGifUrl: null,
   isLoading: false,
   errorMessage: null,
 }
 
 export function useDeterministicPokemonResult(answers: SurveyAnswers) {
   const [result, setResult] = useState<DeterministicPokemonResult>(initialResultState)
-  const pokemonNameByNumberRef = useRef(new Map<number, string>())
+  const pokemonSummaryByNumberRef = useRef(
+    new Map<number, { name: string; imageUrl: string; gifUrl: string }>(),
+  )
   const hasRequiredInputs = hasRequiredIdentityAnswers(answers)
   const inputSignature = hasRequiredInputs ? getDeterministicInputSignature(answers) : null
 
@@ -43,13 +49,15 @@ export function useDeterministicPokemonResult(answers: SurveyAnswers) {
       try {
         const pokemonNumber = await getDeterministicPokemonNumber(answers)
 
-        const cachedPokemonName = pokemonNameByNumberRef.current.get(pokemonNumber)
-        if (cachedPokemonName) {
+        const cachedPokemonSummary = pokemonSummaryByNumberRef.current.get(pokemonNumber)
+        if (cachedPokemonSummary) {
           if (!hasCancelled) {
             setResult({
               inputSignature,
               pokemonNumber,
-              pokemonName: cachedPokemonName,
+              pokemonName: cachedPokemonSummary.name,
+              pokemonImageUrl: cachedPokemonSummary.imageUrl,
+              pokemonGifUrl: cachedPokemonSummary.gifUrl,
               isLoading: false,
               errorMessage: null,
             })
@@ -59,13 +67,19 @@ export function useDeterministicPokemonResult(answers: SurveyAnswers) {
 
         const pokemon = await fetchPokemonById(pokemonNumber)
         const displayName = formatPokemonDisplayName(pokemon.name)
-        pokemonNameByNumberRef.current.set(pokemonNumber, displayName)
+        pokemonSummaryByNumberRef.current.set(pokemonNumber, {
+          name: displayName,
+          imageUrl: pokemon.imageUrl,
+          gifUrl: pokemon.showdownGifUrl,
+        })
 
         if (!hasCancelled) {
           setResult({
             inputSignature,
             pokemonNumber,
             pokemonName: displayName,
+            pokemonImageUrl: pokemon.imageUrl,
+            pokemonGifUrl: pokemon.showdownGifUrl,
             isLoading: false,
             errorMessage: null,
           })
@@ -76,6 +90,8 @@ export function useDeterministicPokemonResult(answers: SurveyAnswers) {
             inputSignature,
             pokemonNumber: null,
             pokemonName: null,
+            pokemonImageUrl: null,
+            pokemonGifUrl: null,
             isLoading: false,
             errorMessage: 'Unable to calculate your Pokemon right now.',
           })
@@ -99,6 +115,8 @@ export function useDeterministicPokemonResult(answers: SurveyAnswers) {
     inputSignature,
     pokemonNumber: isCurrentSignature ? result.pokemonNumber : null,
     pokemonName: isCurrentSignature ? result.pokemonName : null,
+    pokemonImageUrl: isCurrentSignature ? result.pokemonImageUrl : null,
+    pokemonGifUrl: isCurrentSignature ? result.pokemonGifUrl : null,
     isLoading: !isCurrentSignature,
     errorMessage: isCurrentSignature ? result.errorMessage : null,
   }

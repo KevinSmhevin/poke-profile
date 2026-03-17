@@ -1,5 +1,7 @@
 import type { SurveyQuestion } from '../types'
 import { starterOptionsByRegionId } from './starterOptionsByRegion'
+import { traitOptions } from './traitOptions'
+import { pseudoLegendaryOptions } from './pseudoLegendaryOptions'
 
 export const NAME_MAX_LENGTH = 20
 const CURRENT_YEAR = new Date().getFullYear()
@@ -95,5 +97,29 @@ export const surveyQuestions: SurveyQuestion[] = [
     prompt: 'Choose your starter Pokemon.',
     label: 'Starter Pokemon',
     optionsByRegionId: starterOptionsByRegionId,
+  },
+  {
+    type: 'traits',
+    id: 'personalityTraits',
+    prompt: 'Which two traits best describe you?',
+    label: 'Select one trait pair',
+    options: traitOptions,
+  },
+  {
+    type: 'pseudoLegendary',
+    id: 'pseudoLegendaryPartner',
+    prompt: 'A powerful Pokemon wants to join your team, which one do you choose?',
+    label: 'Choose one option',
+    options: pseudoLegendaryOptions,
+  },
+  {
+    type: 'wildEncounter',
+    id: 'randomTeammatePokemon',
+    prompt: 'A final pokemon wants to join your team, which one will you choose?',
+    label: 'Choose one Pokemon',
+    optionCount: 18,
+    minLoadingMs: 5000,
+    initialApproachPrompt: '... something is approaching you from behind',
+    rerollApproachPrompt: 'Ok... another pokemon is approaching..',
   },
 ]

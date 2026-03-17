@@ -2,7 +2,15 @@ export type SurveyAnswers = Record<string, string>
 
 type BaseSurveyQuestion = {
   id: string
-  type: 'text' | 'date' | 'pokemonType' | 'region' | 'starter'
+  type:
+    | 'text'
+    | 'date'
+    | 'pokemonType'
+    | 'region'
+    | 'starter'
+    | 'traits'
+    | 'pseudoLegendary'
+    | 'wildEncounter'
   prompt: string
 }
 
@@ -58,9 +66,50 @@ export type StarterSurveyQuestion = BaseSurveyQuestion & {
   optionsByRegionId: Record<string, StarterOption[]>
 }
 
+export type TraitOption = {
+  id: string
+  label: string
+  eeveelutionName: string
+  eeveelutionNumber: number
+  eeveelutionType: string
+  gifSrc: string
+}
+
+export type TraitsSurveyQuestion = BaseSurveyQuestion & {
+  type: 'traits'
+  label: string
+  options: TraitOption[]
+}
+
+export type PseudoLegendaryOption = {
+  id: string
+  label: string
+  pseudoLegendaryName: string
+  pseudoLegendaryNumber: number
+  gifSrc: string
+}
+
+export type PseudoLegendarySurveyQuestion = BaseSurveyQuestion & {
+  type: 'pseudoLegendary'
+  label: string
+  options: PseudoLegendaryOption[]
+}
+
+export type WildEncounterSurveyQuestion = BaseSurveyQuestion & {
+  type: 'wildEncounter'
+  label: string
+  optionCount: number
+  minLoadingMs: number
+  initialApproachPrompt: string
+  rerollApproachPrompt: string
+}
+
 export type SurveyQuestion =
   | TextSurveyQuestion
   | DateSurveyQuestion
   | PokemonTypeSurveyQuestion
   | RegionSurveyQuestion
   | StarterSurveyQuestion
+  | TraitsSurveyQuestion
+  | PseudoLegendarySurveyQuestion
+  | WildEncounterSurveyQuestion

@@ -283,6 +283,134 @@ body::before {
   font-weight: 600;
 }
 
+.trait-option-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.trait-option-button {
+  border: 2px solid var(--border);
+  border-radius: 0.6rem;
+  background: #11161c;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.92rem;
+  line-height: 1.2;
+  min-height: 44px;
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+}
+
+.trait-option-button.is-selected {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 1px rgb(77 163 255 / 0.4);
+}
+
+.trait-option-button:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.pseudo-option-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.pseudo-option-button {
+  border: 2px solid var(--border);
+  border-radius: 0.6rem;
+  background: #11161c;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.92rem;
+  line-height: 1.25;
+  min-height: 48px;
+  padding: 0.55rem 0.65rem;
+  text-align: left;
+}
+
+.pseudo-option-button.is-selected {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 1px rgb(77 163 255 / 0.4);
+}
+
+.pseudo-option-button:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.wild-option-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.wild-option-button {
+  border: 2px solid var(--border);
+  border-radius: 0.7rem;
+  background: #11161c;
+  color: var(--text);
+  min-height: 90px;
+  padding: 0.45rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  text-align: center;
+}
+
+.wild-option-button.is-selected {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 1px rgb(77 163 255 / 0.4);
+}
+
+.wild-option-button:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.wild-option-media {
+  width: 54px;
+  height: 54px;
+  border-radius: 0.5rem;
+  object-fit: contain;
+  background: rgb(255 255 255 / 0.04);
+}
+
+.wild-option-name {
+  font-size: 0.75rem;
+  line-height: 1.15;
+  font-weight: 600;
+}
+
+.result-media-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.result-media-row > span {
+  color: var(--text-dim);
+}
+
+.result-inline-media {
+  border-radius: 0.45rem;
+  border: 1px solid var(--border);
+  background: rgb(255 255 255 / 0.04);
+  width: 56px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.result-starter-media {
+  width: 56px;
+  height: 56px;
+}
+
 .cursor {
   display: inline-block;
   color: var(--yellow);
@@ -306,8 +434,20 @@ body::before {
   width: 100%;
 }
 
+.pixel-button-secondary {
+  background: linear-gradient(180deg, #3c4754, #2b3540);
+}
+
+.pixel-button-secondary:hover {
+  background: linear-gradient(180deg, #4b5a6b, #364250);
+}
+
 .pixel-button:hover {
   background: linear-gradient(180deg, #ff7676, var(--red));
+}
+
+.pixel-button.pixel-button-secondary:hover {
+  background: linear-gradient(180deg, #4b5a6b, #364250);
 }
 
 .pixel-button:focus-visible {
@@ -351,5 +491,17 @@ body::before {
     min-height: 116px;
     text-align: center;
     gap: 0.45rem;
+  }
+
+  .trait-option-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pseudo-option-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wild-option-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

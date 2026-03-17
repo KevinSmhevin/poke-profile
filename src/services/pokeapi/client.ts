@@ -4,6 +4,7 @@ export type PokemonSummary = {
   id: number
   name: string
   imageUrl: string
+  showdownGifUrl: string
 }
 
 type PokemonApiResponse = {
@@ -11,6 +12,11 @@ type PokemonApiResponse = {
   name: string
   sprites: {
     front_default: string | null
+    other?: {
+      showdown?: {
+        front_default: string | null
+      }
+    }
   }
 }
 
@@ -19,6 +25,7 @@ function mapPokemonPayload(payload: PokemonApiResponse): PokemonSummary {
     id: payload.id,
     name: payload.name,
     imageUrl: payload.sprites.front_default ?? '',
+    showdownGifUrl: payload.sprites.other?.showdown?.front_default ?? '',
   }
 }
 
