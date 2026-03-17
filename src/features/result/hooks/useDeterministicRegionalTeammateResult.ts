@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { fetchPokemonByName } from '../../../services/pokeapi/client'
+import { fetchPokemonById, fetchPokemonByName } from '../../../services/pokeapi/client'
 import { fetchGenerationPokemonSpeciesNames } from '../../../services/pokeapi/generation'
 import {
   formatPokemonDisplayName,
@@ -29,6 +29,17 @@ const initialState: DeterministicRegionalTeammateResult = {
   isLoading: false,
   errorMessage: null,
 }
+
+const PALDEA_GENERATION_ID = 9
+const PALDEA_POKEMON_ID_RANGE = {
+  start: 906,
+  end: 1025,
+} as const
+
+const PALDEA_POKEMON_IDS = Array.from(
+  { length: PALDEA_POKEMON_ID_RANGE.end - PALDEA_POKEMON_ID_RANGE.start + 1 },
+  (_, index) => PALDEA_POKEMON_ID_RANGE.start + index,
+)
 
 export function useDeterministicRegionalTeammateResult(answers: SurveyAnswers) {
   const [result, setResult] = useState<DeterministicRegionalTeammateResult>(initialState)
@@ -70,22 +81,34 @@ export function useDeterministicRegionalTeammateResult(answers: SurveyAnswers) {
           return
         }
 
-        let speciesNames = speciesCacheByGenerationRef.current.get(generationId)
-        if (!speciesNames) {
-          speciesNames = await fetchGenerationPokemonSpeciesNames(generationId)
-          speciesCacheByGenerationRef.current.set(generationId, speciesNames)
-        }
+        const pokemon =
+          generationId === PALDEA_GENERATION_ID
+            ? await (async () => {
+                const deterministicIndex = await getDeterministicIndexFromSignature(
+                  inputSignature,
+                  PALDEA_POKEMON_IDS.length,
+                )
+                const selectedPokemonId = PALDEA_POKEMON_IDS[deterministicIndex]
+                return fetchPokemonById(selectedPokemonId)
+              })()
+            : await (async () => {
+                let speciesNames = speciesCacheByGenerationRef.current.get(generationId)
+                if (!speciesNames) {
+                  speciesNames = await fetchGenerationPokemonSpeciesNames(generationId)
+                  speciesCacheByGenerationRef.current.set(generationId, speciesNames)
+                }
 
-        if (speciesNames.length === 0) {
-          throw new Error('Generation species list is empty.')
-        }
+                if (speciesNames.length === 0) {
+                  throw new Error('Generation species list is empty.')
+                }
 
-        const deterministicIndex = await getDeterministicIndexFromSignature(
-          inputSignature,
-          speciesNames.length,
-        )
-        const selectedSpeciesName = speciesNames[deterministicIndex]
-        const pokemon = await fetchPokemonByName(selectedSpeciesName)
+                const deterministicIndex = await getDeterministicIndexFromSignature(
+                  inputSignature,
+                  speciesNames.length,
+                )
+                const selectedSpeciesName = speciesNames[deterministicIndex]
+                return fetchPokemonByName(selectedSpeciesName)
+              })()
         const resolvedPokemon = {
           number: pokemon.id,
           name: formatPokemonDisplayName(pokemon.name),

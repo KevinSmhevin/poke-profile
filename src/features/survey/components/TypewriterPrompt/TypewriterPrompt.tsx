@@ -10,6 +10,10 @@ export function TypewriterPrompt({ text, speedMs = 24 }: TypewriterPromptProps) 
   const safeSpeed = Math.max(10, speedMs)
 
   useEffect(() => {
+    setVisibleCharacters(0)
+  }, [text])
+
+  useEffect(() => {
     const timer = window.setInterval(() => {
       setVisibleCharacters((current) => {
         if (current >= text.length) {

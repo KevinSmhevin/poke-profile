@@ -35,6 +35,10 @@ export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
   const [hasStartedJourney, setHasStartedJourney] = useState(false)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [isSurveySubmitted, setIsSurveySubmitted] = useState(false)
+  const [resultsPresentationPhase, setResultsPresentationPhase] = useState<
+    'hidden' | 'gathering' | 'revealing' | 'complete'
+  >('hidden')
+  const [currentRevealIndex, setCurrentRevealIndex] = useState(0)
 
   useEffect(() => {
     onHasStartedJourneyChange?.(hasStartedJourney)
@@ -361,6 +365,71 @@ export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
               mediaAlt: 'Team member',
             },
   ]
+  const infoItemById = Object.fromEntries(infoGridItems.map((item) => [item.id, item]))
+  const presentationItems = [
+    {
+      id: 'favorite-type',
+      promptText: 'Your favorite type is...',
+      kind: 'single' as const,
+      item: infoItemById['favorite-type'],
+    },
+    {
+      id: 'starter',
+      promptText: 'Your bestfriend, your starter is..',
+      kind: 'single' as const,
+      item: infoItemById.starter,
+    },
+    {
+      id: 'region',
+      promptText: 'Your journey where it all began is...',
+      kind: 'single' as const,
+      item: infoItemById.region,
+    },
+    {
+      id: 'eeveelution',
+      promptText: 'If you were an Eeveelution you would be...',
+      kind: 'single' as const,
+      item: infoItemById.eeveelution,
+    },
+    {
+      id: 'pseudo-legendary',
+      promptText: 'The Pseudolegendary you chose is..',
+      kind: 'single' as const,
+      item: infoItemById['pseudo-legendary'],
+    },
+    {
+      id: 'legendary-result',
+      promptText: 'Your legendary pokemon is...',
+      kind: 'single' as const,
+      item: infoItemById['legendary-result'],
+    },
+    {
+      id: 'pokemon-you-are',
+      promptText: 'The pokemon you are is...',
+      kind: 'single' as const,
+      item: infoItemById['pokemon-you-are'],
+    },
+    {
+      id: 'team-reveal',
+      promptText: 'And finally.. Your 6 man pokemon team is...',
+      kind: 'team' as const,
+      items: teamGridItems,
+    },
+  ]
+  const activePresentationItem = presentationItems[currentRevealIndex] ?? null
+
+  useEffect(() => {
+    if (resultsPresentationPhase !== 'gathering') {
+      return
+    }
+
+    const gatherTimer = window.setTimeout(() => {
+      setResultsPresentationPhase('revealing')
+      setCurrentRevealIndex(0)
+    }, 3000)
+
+    return () => window.clearTimeout(gatherTimer)
+  }, [resultsPresentationPhase])
 
   const handleCurrentQuestionValueChange = (value: string) => {
     if (!activeQuestion) {
@@ -375,10 +444,23 @@ export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
 
     if (isLastQuestion) {
       setIsSurveySubmitted(true)
+      setResultsPresentationPhase('gathering')
+      setCurrentRevealIndex(0)
       return
     }
 
     setCurrentQuestionIndex((index) => index + 1)
+  }
+
+  const handleAcknowledgeReveal = () => {
+    const isLastRevealItem = currentRevealIndex >= presentationItems.length - 1
+
+    if (isLastRevealItem) {
+      setResultsPresentationPhase('complete')
+      return
+    }
+
+    setCurrentRevealIndex((index) => index + 1)
   }
 
   return (
@@ -458,42 +540,121 @@ export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
       ) : null}
 
       {isSurveySubmitted ? (
-        <div className="game-panel results-panel">
-          <h1>
-            Trainer <strong>{trainerFullName}</strong> Results
-          </h1>
-          <div className="result-info-grid">
-            {infoGridItems.map((resultItem) => (
-              <div key={resultItem.id} className="result-info-card">
-                <span className="result-info-label">{resultItem.title}</span>
-                {resultItem.value ? (
-                  <strong className="result-info-value">{resultItem.value}</strong>
-                ) : null}
-                {resultItem.mediaSrc ? (
-                  <img
-                    src={resultItem.mediaSrc}
-                    alt={resultItem.mediaAlt}
-                    className="result-inline-media result-starter-media result-info-media"
-                  />
-                ) : null}
+        <div
+          className={`game-panel results-panel ${
+            resultsPresentationPhase === 'complete' ? '' : 'results-panel-staged'
+          }`}
+        >
+          {resultsPresentationPhase === 'gathering' ? (
+            <TypewriterPrompt text="... gathering your results ... " speedMs={40} />
+          ) : null}
+
+          {resultsPresentationPhase === 'revealing' && activePresentationItem ? (
+            <div className="result-reveal-overlay" role="dialog" aria-modal="true">
+              <div className="result-reveal-modal">
+                <TypewriterPrompt text={activePresentationItem.promptText} speedMs={28} />
+                {activePresentationItem.kind === 'single' ? (
+                  <>
+                    {activePresentationItem.item.value ? (
+                      <strong className="result-info-value">{activePresentationItem.item.value}</strong>
+                    ) : null}
+                    {activePresentationItem.item.mediaSrc ? (
+                      <img
+                        src={activePresentationItem.item.mediaSrc}
+                        alt={activePresentationItem.item.mediaAlt}
+                        className="result-inline-media result-starter-media result-info-media"
+                      />
+                    ) : null}
+                  </>
+                ) : (
+                  <div className="result-team-grid result-team-grid-modal">
+                    {activePresentationItem.items.map((teamGridItem) => (
+                      <div key={teamGridItem.id} className="result-team-card">
+                        {teamGridItem.mediaSrc ? (
+                          <img
+                            src={teamGridItem.mediaSrc}
+                            alt={teamGridItem.mediaAlt}
+                            className="result-inline-media result-starter-media result-team-card-media"
+                          />
+                        ) : null}
+                        <strong>{teamGridItem.label}</strong>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="result-reveal-actions">
+                  <button
+                    type="button"
+                    className="pixel-button"
+                    onClick={handleAcknowledgeReveal}
+                  >
+                    YAY! 🙌
+                  </button>
+                  <button
+                    type="button"
+                    className="pixel-button"
+                    onClick={handleAcknowledgeReveal}
+                  >
+                    Nice!🙂
+                  </button>
+                  <button
+                    type="button"
+                    className="pixel-button"
+                    onClick={handleAcknowledgeReveal}
+                  >
+                    Ok!🤔
+                  </button>
+                  <button
+                    type="button"
+                    className="pixel-button"
+                    onClick={handleAcknowledgeReveal}
+                  >
+                    Lame!😖
+                  </button>
+                </div>
               </div>
-            ))}
-          </div>
-          <p className="team-grid-description">Your 6 man pokemon team is</p>
-          <div className="result-team-grid">
-            {teamGridItems.map((teamGridItem) => (
-              <div key={teamGridItem.id} className="result-team-card">
-                {teamGridItem.mediaSrc ? (
-                  <img
-                    src={teamGridItem.mediaSrc}
-                    alt={teamGridItem.mediaAlt}
-                    className="result-inline-media result-starter-media result-team-card-media"
-                  />
-                ) : null}
-                <strong>{teamGridItem.label}</strong>
+            </div>
+          ) : null}
+
+          {resultsPresentationPhase === 'complete' ? (
+            <>
+              <h1>
+                Trainer <strong>{trainerFullName}</strong> Results
+              </h1>
+              <div className="result-info-grid">
+                {infoGridItems.map((resultItem) => (
+                  <div key={resultItem.id} className="result-info-card">
+                    <span className="result-info-label">{resultItem.title}</span>
+                    {resultItem.value ? (
+                      <strong className="result-info-value">{resultItem.value}</strong>
+                    ) : null}
+                    {resultItem.mediaSrc ? (
+                      <img
+                        src={resultItem.mediaSrc}
+                        alt={resultItem.mediaAlt}
+                        className="result-inline-media result-starter-media result-info-media"
+                      />
+                    ) : null}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+              <p className="team-grid-description">Your 6 man pokemon team is</p>
+              <div className="result-team-grid">
+                {teamGridItems.map((teamGridItem) => (
+                  <div key={teamGridItem.id} className="result-team-card">
+                    {teamGridItem.mediaSrc ? (
+                      <img
+                        src={teamGridItem.mediaSrc}
+                        alt={teamGridItem.mediaAlt}
+                        className="result-inline-media result-starter-media result-team-card-media"
+                      />
+                    ) : null}
+                    <strong>{teamGridItem.label}</strong>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : null}
         </div>
       ) : null}
     </>

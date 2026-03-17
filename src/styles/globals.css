@@ -449,6 +449,47 @@ button {
   text-align: center;
 }
 
+.results-panel-staged {
+  min-height: 320px;
+  align-items: center;
+  justify-items: center;
+}
+
+.result-reveal-overlay {
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.result-reveal-modal {
+  width: min(100%, 720px);
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  padding: 1rem;
+  background: #11161c;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 0 0 2px #0d1115;
+}
+
+.result-reveal-actions {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.result-reveal-actions .pixel-button {
+  width: 100%;
+}
+
+.result-team-grid-modal {
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .result-info-grid {
   width: 100%;
   display: grid;
