@@ -170,12 +170,14 @@ body::before {
 
 .dob-mobile-picker {
   width: 100%;
-  max-width: 320px;
+  max-width: 260px;
   margin-inline: auto;
 }
 
 .dob-mobile-picker-trigger {
   text-align: center;
+  font-size: 0.9rem;
+  padding: 0.55rem 0.6rem;
 }
 
 .dob-calendar-wrapper .rdp-root {
@@ -576,6 +578,23 @@ button {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.6rem;
+}
+
+.results-toast {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.results-toast .saved-note {
+  pointer-events: auto;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: rgb(17 22 28 / 0.95);
+  border: 1px solid var(--border);
 }
 
 .cursor {
