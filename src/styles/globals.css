@@ -596,6 +596,10 @@ button {
   gap: 0.6rem;
 }
 
+.results-actions .results-retake-button {
+  grid-column: 1 / -1;
+}
+
 .results-toast {
   position: fixed;
   inset-inline: 0;

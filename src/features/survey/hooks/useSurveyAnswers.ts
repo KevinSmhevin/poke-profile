@@ -11,8 +11,13 @@ export function useSurveyAnswers(initialAnswers: SurveyAnswers = {}) {
     }))
   }, [])
 
+  const resetAnswers = useCallback(() => {
+    setAnswers({})
+  }, [])
+
   return {
     answers,
     setAnswer,
+    resetAnswers,
   }
 }

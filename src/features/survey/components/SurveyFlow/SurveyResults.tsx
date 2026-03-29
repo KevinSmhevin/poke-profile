@@ -23,9 +23,14 @@ import { TypewriterPrompt } from '../TypewriterPrompt/TypewriterPrompt'
 type SurveyResultsProps = {
   answers: SurveyAnswers
   startInCompleteMode?: boolean
+  onRetakeQuiz?: () => void
 }
 
-export function SurveyResults({ answers, startInCompleteMode = false }: SurveyResultsProps) {
+export function SurveyResults({
+  answers,
+  startInCompleteMode = false,
+  onRetakeQuiz,
+}: SurveyResultsProps) {
   const [resultsPresentationPhase, setResultsPresentationPhase] = useState<
     'gathering' | 'revealing' | 'complete'
   >(startInCompleteMode ? 'complete' : 'gathering')
@@ -588,6 +593,15 @@ export function SurveyResults({ answers, startInCompleteMode = false }: SurveyRe
             >
               Copy Results Link
             </button>
+            {onRetakeQuiz ? (
+              <button
+                type="button"
+                className="pixel-button pixel-button-secondary results-retake-button"
+                onClick={onRetakeQuiz}
+              >
+                Retake quiz
+              </button>
+            ) : null}
           </div>
           {resultsActionMessage ? (
             <div className="results-toast">

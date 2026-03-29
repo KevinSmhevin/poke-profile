@@ -18,7 +18,7 @@ export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
 
     return parseSharedResultsFromUrl(window.location.search)
   }, [])
-  const { answers, setAnswer } = useSurveyAnswers(sharedResultsAnswers ?? {})
+  const { answers, setAnswer, resetAnswers } = useSurveyAnswers(sharedResultsAnswers ?? {})
   const [hasStartedJourney, setHasStartedJourney] = useState(Boolean(sharedResultsAnswers))
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [isSurveySubmitted, setIsSurveySubmitted] = useState(Boolean(sharedResultsAnswers))
@@ -49,6 +49,17 @@ export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
     setCurrentQuestionIndex((index) => index + 1)
   }
 
+  const handleRetakeQuiz = () => {
+    resetAnswers()
+    setHasStartedJourney(false)
+    setCurrentQuestionIndex(0)
+    setIsSurveySubmitted(false)
+    if (typeof window !== 'undefined' && window.location.search) {
+      const path = `${window.location.pathname}${window.location.hash}`
+      window.history.replaceState({}, '', path)
+    }
+  }
+
   return (
     <>
       {!hasStartedJourney ? <SurveyStart onStartJourney={() => setHasStartedJourney(true)} /> : null}
@@ -64,7 +75,11 @@ export function SurveyFlow({ onHasStartedJourneyChange }: SurveyFlowProps) {
       ) : null}
 
       {isSurveySubmitted ? (
-        <SurveyResults answers={answers} startInCompleteMode={Boolean(sharedResultsAnswers)} />
+        <SurveyResults
+          answers={answers}
+          startInCompleteMode={Boolean(sharedResultsAnswers)}
+          onRetakeQuiz={handleRetakeQuiz}
+        />
       ) : null}
     </>
   )
